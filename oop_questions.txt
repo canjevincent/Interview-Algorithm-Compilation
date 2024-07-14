@@ -1,0 +1,18 @@
+#1 Write a Python program to create a class representing a Circle. Include methods to calculate its area and perimeter.
+#2. Write a Python program to create a person class. Include attributes like name, country and date of birth. Implement a method to determine the person's age.
+#3. Write a Python program to create a calculator class. Include methods for basic arithmetic operations.
+#4. Write a Python program to create a class that represents a shape. Include methods to calculate its area and perimeter. Implement subclasses for different shapes like circle, triangle, and square.
+#5. Write a Python program to create a class representing a binary search tree. Include methods for inserting and searching for elements in the binary tree.
+#6. Write a Python program to create a class representing a stack data structure. Include methods for pushing and popping elements.
+#7. Write a Python program to create a class representing a linked list data structure. Include methods for displaying linked list data, inserting and deleting nodes.
+#8. Write a Python program to create a class representing a shopping cart. Include methods for adding and removing items, and calculating the total price.
+#9. Write a Python program to create a class representing a stack data structure. Include methods for pushing, popping and displaying elements.
+#10. Write a Python program to create a class representing a queue data structure. Include methods for enqueueing and dequeueing elements.
+#11. Write a Python program to create a class representing a bank. Include methods for managing customer accounts and transactions.
+
+# Types of Inheritance in Python
+# Single Inheritance
+# Multiple Inheritance
+# Multilevel Inheritance
+# Hierarchical Inheritance
+# Hybrid Inheritance

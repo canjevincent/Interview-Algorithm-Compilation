@@ -1,0 +1,53 @@
+https://www.youtube.com/watch?v=QNfnuK-1YYY&t=255s
+
+-- Fetch employees who earn more than average salary of all employee
+
+with average_salary (avg_sal) as 
+      (select cast(avg(salary) as int) from employee)
+select * 
+from employee e, average_salary av
+where e.salary > av.avg_sal;
+
+-- Find stores who's sales where better than average sales across all stores
+
+1) Total sales per each store.
+
+select s.store_id, sum(cost) as total_sales_per_store
+from sales s
+group by s.store_id;
+
+2) Find the average sales with respect all the stores.
+
+select cast(avg(total_sales_per_store) as int) as avg_sales_for_all_stores
+from (select s.store_id, sum(cost) as total_sales_per_store
+      from sales s
+      group by s.store_id) x;
+
+3) Find the stores where Total_sales > Avg_sales of all stores.
+
+Example 1 -- SUBQUERY
+
+select *
+from (select s.store_id, sum(cost) as total_sales_per_store
+      from sales s
+      group by s.store_id) total_sales
+join (select cast(avg(total_sales_per_store) as int) as avg_sales_for_all_stores
+      from ( select s.store_id, sum(cost) as total_sales_per_store
+             from sales s
+             group by s.store_id) x) avg_sales
+on total_sales.total_sales_per_store > avg_sales.avg_sales_for_all_stores;
+
+Example 2 (Optimized) -- WITH CLAUSE
+
+with Total_Sales (store_id, total_sales_per_store) as
+        (select s.store_id, sum(cost) as total_sales_per_store
+        from sales s
+        group by s.store_id),
+     avg_sales (avg_sales_for_all_stores) as 
+        (select cast(avg(total_sales_per_store) as int) as avg_sales_for_all_stores
+        from Total_Sales)
+
+select *
+from Total_Sales ts
+join avg_sales av
+on ts.total_sales_per_store > av.avg_sales_for_all_stores

@@ -1,0 +1,91 @@
+# --INTERVAL--
+
+# Meeting Rooms
+# Link : https://leetcode.ca/all/252.html
+         https://leetcode.ca/2016-08-08-252-Meeting-Rooms/
+
+# Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), determine if a person could attend all meetings.
+
+# Example 1:
+
+# Input: [[0,30],[5,10],[15,20]]
+# Output: false
+
+# Example 2:
+
+# Input: [[7,10],[2,4]]
+# Output: true
+
+# Constraints:
+
+# 0 <= intervals.length <= 10^4
+# intervals[i].length == 2
+# 0 <= starti < endi <= 10^6
+
+# Algorithm
+# To find whether there is an intersection of intervals, the easiest way is to compare every two intervals to see if there is an overlap. If so, just return false.
+
+# Compare whether there is overlap between the two intervals a and b, you can detect two cases,
+
+# If the start position of a is greater than or equal to the start position of b, and the start position of a is less than the end position of b, there must be overlap,
+# Another situation is that a and b exchange positions. If the start position of b is greater than or equal to the start position of a, and the start position of b is less than the end position of a, then there must be overlap
+
+# Solution 1 - Code
+
+from itertools import pairwise
+class Solution:
+    def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+        intervals.sort(key=lambda x: x[0])
+        return not any(a[1] > b[0] for a,b in pairwise(intervals))
+        # any is True, then conflict found
+
+        # also works below line:
+        # return all(a[1] < b[0] for a,b in pairwise(intervals))
+
+class Solution:
+    def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+        intervals.sort(key=lambda x: x[0])
+        for i in range(len(intervals) - 1):
+            if intervals[i][1] > intervals[i + 1][0]:
+                return False
+        return True
+
+############
+
+# Definition for an interval.
+# class Interval(object):
+#     def __init__(self, s=0, e=0):
+#         self.start = s
+#         self.end = e
+
+class Solution(object):
+  def canAttendMeetings(self, intervals):
+    """
+    :type intervals: List[Interval]
+    :rtype: bool
+    """
+    intervals = sorted(intervals, key=lambda x: x.start)
+    for i in range(1, len(intervals)):
+      if intervals[i].start < intervals[i - 1].end:
+        return False
+    return True
+
+# Solution II
+
+class Solution:
+    def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+        intervals.sort()
+
+        for i in range(1, len(intervals)):
+            if intervals[i][0] < intervals[i-1][1]:
+                return False
+
+        return True
+
+# Solution III
+
+def canAttendMeetings(self, intervals: List[List[int]]) -> bool:
+        new_intervals = sorted(intervals, key=lambda x: x[0])
+        for i in range(1,len(new_intervals)):
+            if new_intervals[i-1][1] > new_intervals[i][0]:return False
+        return True

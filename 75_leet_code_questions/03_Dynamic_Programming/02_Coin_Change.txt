@@ -1,0 +1,134 @@
+# --DYNAMIC PROGRAMMING--
+
+# Coin Change
+# Link : https://leetcode.com/problems/coin-change/solutions/1475250/python-4-solutions-top-down-dp-bottom-up-dp-space-o-amount-clean-concise/
+
+# You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+
+# Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+# You may assume that you have an infinite number of each kind of coin.
+
+ 
+
+# Example 1:
+
+# Input: coins = [1,2,5], amount = 11
+# Output: 3
+# Explanation: 11 = 5 + 5 + 1
+# Example 2:
+
+# Input: coins = [2], amount = 3
+# Output: -1
+# Example 3:
+
+# Input: coins = [1], amount = 0
+# Output: 0
+ 
+
+# Constraints:
+
+# 1 <= coins.length <= 12
+# 1 <= coins[i] <= 2^31 - 1
+# 0 <= amount <= 10^4
+
+# ✔️ Solution 1: Top down DP (Version 1)
+
+# Let dp(i, amount) denote the minimum number of coins we need to exchange amount money, we can use coins types of coins[0..i].
+
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        @lru_cache(None)
+        def dp(i, amount):
+            if amount == 0:
+                return 0
+            if i == -1:
+                return math.inf
+            
+            ans = dp(i-1, amount)  # Skip ith coin
+            if amount >= coins[i]:  # Used ith coin
+                ans = min(ans, dp(i, amount - coins[i]) + 1)
+            return ans
+        
+        n = len(coins)
+        ans = dp(n-1, amount)
+        return ans if ans != math.inf else -1
+
+# Complexity
+
+# Time: O(N * amount), where N <= 12 is number of kinds of coins, amount <= 10^4 is amount of money need to be exchanged.
+# Space: O(amount)
+
+# ✔️ Solution 2: Top down DP (Version 2 - Space Optimized)
+
+# Let dp(amount) denote the minimum number of coins we need to exchange amount money.
+
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        @lru_cache(None)
+        def dp(amount):
+            if amount == 0:
+                return 0
+            
+            ans = math.inf
+            for coin in coins:
+                if amount >= coin:
+                    ans = min(ans, dp(amount - coin) + 1)
+            return ans
+        
+        ans = dp(amount)
+        return ans if ans != math.inf else -1
+
+# Complexity
+
+# Time: O(N * amount), where N <= 12 is number of kinds of coins, amount <= 10^4 is amount of money need to be exchanged.
+# Space: O(amount)
+
+# ✔️ Solution 3: Bottom up DP
+
+# Let dp[i][amount] denote the minimum number of coins we need to exchange amount money, we can use coins types of coins[0..i].
+
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        n = len(coins)
+        dp = [[math.inf] * (amount+1) for _ in range(n)]
+        
+        for i in range(n):
+            dp[i][0] = 0
+            for amnt in range(1, amount+1):
+                if i >= 0:
+                    dp[i][amnt] = dp[i-1][amnt]  # Skip i_th coin
+                if amnt >= coins[i]:
+                    dp[i][amnt] = min(dp[i][amnt], dp[i][amnt-coins[i]] + 1)  # Use i_th coin
+        
+        return dp[n-1][amount] if dp[n-1][amount] != math.inf else -1
+
+# Complexity
+
+# Time: O(N * amount), where N <= 12 is number of kinds of coins, amount <= 10^4 is amount of money need to be exchanged.
+# Space: O(N * amount)
+
+# ✔️ Solution 4: Bottom up DP (Space Optimized)
+
+# Let dp[amount] denote the minimum number of coins we need to exchange amount money.
+
+class Solution:
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        n = len(coins)
+        coins.sort()
+        dp = [math.inf] * (amount+1)
+        dp[0] = 0
+        
+        for amnt in range(1, amount+1):
+            for coin in coins:
+                if amnt >= coin:
+                    dp[amnt] = min(dp[amnt], dp[amnt-coin] + 1)
+                else:
+                    break  # optimize a bit
+                    
+        return dp[amount] if dp[amount] != math.inf else -1
+
+# Complexity
+
+# Time: O(N * amount), where N <= 12 is number of kinds of coins, amount <= 10^4 is amount of money need to be exchanged.
+# Space: O(amount)

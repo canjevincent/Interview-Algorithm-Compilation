@@ -1,0 +1,247 @@
+
+# 1. Basic Question
+
+# Return the index of target else -1
+
+# Input: [1,2,3,4,5,6,7,8] 
+# Target: 2
+# Output: 1
+
+#BINARY LEVEL 1
+def binary_search(arr, target):
+
+  # Get the current upper and lower bounds
+  lo = 0
+  hi = len(arr)-1
+
+  # If lo > hi, then the value is not in the array
+  while lo <= hi:
+
+    # Find the midpoint
+    mid = (hi + lo) // 2
+
+    # If the value is the one we're looking for, return index
+    if arr[mid] == target:
+      return mid
+
+    # If value is greater than target, update hi so that we only look
+    # at the lower half of the array
+    if arr[mid] > target:
+      hi = mid-1
+
+    # Otherwise look at the greater half of the array
+    else:
+      lo = mid+1
+  
+  #  We didn't find the value in the array so return -1
+  return -1
+
+print(binary_search([1,2,3,4,5,6,7,8], 2))
+
+# 2. Search in Rotated Sorted Array
+
+# There is an integer array nums sorted in ascending order (with distinct values).
+# Prior to being passed to your function, nums is possibly rotated at an unknown pivot index k (1 <= k < nums.length) such that the resulting array is [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]] (0-indexed). For example, [0,1,2,4,5,6,7] might be rotated at pivot index 3 and become [4,5,6,7,0,1,2].
+# Given the array nums after the possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.
+# You must write an algorithm with O(log n) runtime complexity.
+
+# Input: nums = [4,5,6,7,0,1,2], target = 0
+# Output: 4
+
+# Input: nums = [4,5,6,7,0,1,2], target = 3
+# Output: -1
+
+# Input: nums = [1], target = 0
+# Output: -1
+
+# BINARY LEVEL 2
+def search_rotated_array(set_arr, target):
+    
+    low, high = 0, len(set_arr)-1
+
+    # Keep dividing subarray in half until we either find the value were
+    # Looking for or the subarray length is 0 (aka low >= high)
+    while low <= high:
+        
+      # The midpoint of our sublist
+      mid = (low + high) // 2
+
+      # If we've found the value, return the index
+      if target == set_arr[mid]:
+         return mid
+      
+      # If the target < set_arr[mid], we have 3 possible options:
+      # 1. Left sublist contains pivot. This means all values lower than
+      # set_arr[mid] are in the left sublist
+      # 2. target >= set_arr[low]. This means target is in left sublist
+      # 3. target < set_arr[low]. This means there could be a pivot in the
+      # right sublist so if our target is in the list it must be there
+
+      if target < set_arr[mid]:
+         
+         # A sublist must contain pivot if set_arr[low] > set_arr[high]
+         if set_arr[low] > set_arr[mid] or target >= set_arr[low]:
+            high = mid-1
+         else:
+            low = mid+1
+      
+      else:
+         
+         # If target > set_arr[mid] we just do the opposite of above
+         if set_arr[mid] > set_arr[high] or target <= set_arr[high]:
+            low = mid+1
+         else:
+            high = mid-1
+    
+    return -1
+
+print(search_rotated_array([4,5,6,1,2,3], 2))
+
+# 3. Split Array Largest Sum
+
+# Given an array nums which consists of non-negative integers and an integer m, you can split the array into m non-empty continuous subarrays.
+# Write an algorithm to minimize the largest sum among these m subarrays.
+
+# Input: nums = [7,2,5,10,8], m = 2
+# Output: 18
+# Explanation:
+#  There are four ways to split nums into two subarrays.
+#  The best way is to split it into [7, 2, 5] and [10, 8],
+#  where the largest sum among the two subarrays is only 18.
+
+# Input: nums = [1,2,3,4,5], m = 2
+# Output: 9
+# Explanation: There are four ways to split nums into two subarrays.
+# The best way is to split it into [1,2,3] and [4,5], where the largest sum among the two subarrays is 
+# only 9.
+
+# BINARY LEVEL 3
+def split_largest(arr_set, m):
+    
+    # We know that our value must be between the max individual value in
+    # the array and the sum of the total array. So we'll just do binary
+    # search to find the minimum value where we can validly divide the array
+
+    max_val = max(arr_set)
+    arr_sum = sum(arr_set)
+
+    if m == 0:
+        return sum
+
+    # Do binary search
+
+    lo = max_val
+    hi = arr_sum
+
+    while lo <= hi:
+        
+        mid = (lo + hi) // 2
+
+        print("--1st--","max_val "+str(max_val),"arr_sum "+str(arr_sum),"lo "+str(lo),"hi "+str(hi),"mid "+str(mid),"target "+str(m))
+
+        # If the array can be validly divided with the current max sum, try
+        # a smaller max sum
+
+        if valid(arr_set, m, mid):
+            
+            hi = mid-1
+        
+        else:
+            
+            lo = mid+1
+    
+    print("--3rd--","max_val "+str(max_val),"arr_sum "+str(arr_sum),"lo "+str(lo),"hi "+str(hi),"target "+str(m))
+
+    return lo
+
+def valid(arr_set, m, mid):
+    
+    subarray_count = 1
+    subarray_sum = 0
+
+    # Greedily divide into the minimum possible subarrays. For each
+    # subarray just add as many values as you can without exceeding the
+    # maxSum. Any time you exceed it,then that is the start of a new subarray
+
+    for a in arr_set:
+        subarray_sum = subarray_sum + a
+
+        print("--2nd--","subarray_count "+str(subarray_count),"subarray_sum "+str(subarray_sum),"mid "+str(mid),"target "+str(m))
+
+        if subarray_sum > mid:
+            subarray_count = subarray_count + 1
+            subarray_sum = a
+
+            if subarray_count > m:
+                print("--False")
+                return False
+    
+    print("--True")
+    return True
+
+print(split_largest([7,2,5,10,8],2))
+
+# 4. Find the number of rotations in a circularly sorted array
+
+# Given a circularly sorted integer array, find the total number of times the array is rotated. Assume there are no duplicates in the array, and the rotation is in the anti-clockwise direction.
+
+# For example,
+
+# Input:  nums = [8, 9, 10, 2, 5, 6]
+# Output: The array is rotated 3 times
+ 
+ 
+# Input:  nums = [2, 5, 6, 8, 9, 10]
+# Output: The array is rotated 0 times
+
+# Function to find the total number of times the list is rotated
+def findRotationCount(nums):
+ 
+    # search space is nums[left…right]
+    (left, right) = (0, len(nums) - 1)
+ 
+    # loop till the search space is exhausted
+    while left <= right:
+ 
+        # if the search space is already sorted, we have
+        # found the minimum element (at index `left`)
+        if nums[left] <= nums[right]:
+            return left
+ 
+        mid = (left + right) // 2
+ 
+        # find the next and previous element of the `mid` element (in circular manner)
+        next = (mid + 1) % len(nums)
+        prev = (mid - 1 + len(nums)) % len(nums)
+ 
+        # if the `mid` element is less than both its next and previous
+        # neighbor, it is the list's minimum element
+ 
+        if nums[mid] <= nums[next] and nums[mid] <= nums[prev]:
+            return mid
+ 
+        # if nums[mid…right] is sorted, and `mid` is not the minimum element,
+        # then the pivot element cannot be present in nums[mid…right],
+        # discard nums[mid…right] and search in the left half
+ 
+        elif nums[mid] <= nums[right]:
+            right = mid - 1
+ 
+        # if nums[left…mid] is sorted, then the pivot element cannot be present in it;
+        # discard nums[left…mid] and search in the right half
+ 
+        elif nums[mid] >= nums[left]:
+            left = mid + 1
+ 
+    # invalid input
+    return -1
+ 
+ 
+if __name__ == '__main__':
+ 
+    nums = [8, 9, 10, 1, 2, 3, 4, 5, 6, 7]
+    print(f'The list is rotated {findRotationCount(nums)} times')
+
+Output:
+
+Array is rotated 3 times

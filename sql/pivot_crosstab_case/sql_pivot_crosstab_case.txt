@@ -1,0 +1,76 @@
+https://www.youtube.com/watch?v=4p-G7fGhqRk&list=PLavw5C92dz9Ef4E-1Zi9KfCTXS_IN8gXZ&index=13
+
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-01-01', 'Cust-1', 50);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-01-02', 'Cust-1', 50);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-01-03', 'Cust-1', 50);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-01-01', 'Cust-2', 100);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-01-02', 'Cust-2', 100);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-01-03', 'Cust-2', 100);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-02-01', 'Cust-2', -100);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-02-02', 'Cust-2', -100);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-02-03', 'Cust-2', -100);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-03-01', 'Cust-3', 1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-04-01', 'Cust-3', 1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-05-01', 'Cust-3', 1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-06-01', 'Cust-3', 1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-07-01', 'Cust-3', -1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-08-01', 'Cust-3', -1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-09-01', 'Cust-3', -1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-10-01', 'Cust-3', -1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-11-01', 'Cust-3', -1);
+INSERT INTO sales_db.sales_data (sales_date, customer_id, amount) VALUES ('2021-12-01', 'Cust-3', -1);
+
+with base_query as
+        (select customer_id as customer
+        , date_format(sales_date, '%b-%y') as sales_date
+        , replace(amount, '$', '') as amount
+        from sales_data),
+    final_data as
+        (select customer
+        , sum(case when sales_date = 'Jan-21' then amount else 0 end) as Jan_21
+        , sum(case when sales_date = 'Feb-21' then amount else 0 end) as Feb_21
+        , sum(case when sales_date = 'Mar-21' then amount else 0 end) as Mar_21
+        , sum(case when sales_date = 'Apr-21' then amount else 0 end) as Apr_21
+        , sum(case when sales_date = 'May-21' then amount else 0 end) as May_21
+        , sum(case when sales_date = 'Jun-21' then amount else 0 end) as Jun_21
+        , sum(case when sales_date = 'Jul-21' then amount else 0 end) as Jul_21
+        , sum(case when sales_date = 'Aug-21' then amount else 0 end) as Aug_21
+        , sum(case when sales_date = 'Sep-21' then amount else 0 end) as Sep_21
+        , sum(case when sales_date = 'Oct-21' then amount else 0 end) as Oct_21
+        , sum(case when sales_date = 'Nov-21' then amount else 0 end) as Nov_21
+        , sum(case when sales_date = 'Dec-21' then amount else 0 end) as Dec_21 
+        , sum(amount) as Total
+        from base_query
+        group by customer
+        UNION
+        select customer
+        , sum(case when sales_date = 'Jan-21' then amount else 0 end) as Jan_21
+        , sum(case when sales_date = 'Feb-21' then amount else 0 end) as Feb_21
+        , sum(case when sales_date = 'Mar-21' then amount else 0 end) as Mar_21
+        , sum(case when sales_date = 'Apr-21' then amount else 0 end) as Apr_21
+        , sum(case when sales_date = 'May-21' then amount else 0 end) as May_21
+        , sum(case when sales_date = 'Jun-21' then amount else 0 end) as Jun_21
+        , sum(case when sales_date = 'Jul-21' then amount else 0 end) as Jul_21
+        , sum(case when sales_date = 'Aug-21' then amount else 0 end) as Aug_21
+        , sum(case when sales_date = 'Sep-21' then amount else 0 end) as Sep_21
+        , sum(case when sales_date = 'Oct-21' then amount else 0 end) as Oct_21
+        , sum(case when sales_date = 'Nov-21' then amount else 0 end) as Nov_21
+        , sum(case when sales_date = 'Dec-21' then amount else 0 end) as Dec_21
+        , '' as Total
+        from base_query)
+select customer
+, case when Jan_21 < 0 then concat('(', Jan_21 * -1, ')$') else concat(Jan_21, '$') end as "Jan-21"
+, case when Feb_21 < 0 then concat('(', Feb_21 * -1, ')$') else concat(Feb_21, '$') end as "Feb-21"
+, case when Mar_21 < 0 then concat('(', Mar_21 * -1, ')$') else concat(Mar_21, '$') end as "Mar-21"
+, case when Apr_21 < 0 then concat('(', Apr_21 * -1, ')$') else concat(Apr_21, '$') end as "Apr-21"
+, case when May_21 < 0 then concat('(', May_21 * -1, ')$') else concat(May_21, '$') end as "May-21"
+, case when Jun_21 < 0 then concat('(', Jun_21 * -1, ')$') else concat(Jun_21, '$') end as "Jun-21"
+, case when Jul_21 < 0 then concat('(', Jul_21 * -1, ')$') else concat(Jul_21, '$') end as "Jul-21"
+, case when Aug_21 < 0 then concat('(', Aug_21 * -1, ')$') else concat(Aug_21, '$') end as "Aug-21"
+, case when Sep_21 < 0 then concat('(', Sep_21 * -1, ')$') else concat(Sep_21, '$') end as "Sep-21"
+, case when Oct_21 < 0 then concat('(', Oct_21 * -1, ')$') else concat(Oct_21, '$') end as "Oct-21"
+, case when Nov_21 < 0 then concat('(', Nov_21 * -1, ')$') else concat(Nov_21, '$') end as "Nov-21"
+, case when Dec_21 < 0 then concat('(', Dec_21 * -1, ')$') else concat(Dec_21, '$') end as "Dec-21"
+, case when Total < 0 then concat('(', Total * -1, ')$') else concat (Total, '$') end as "Total"
+from final_data;
+

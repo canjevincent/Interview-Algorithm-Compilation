@@ -1,0 +1,191 @@
+# --MATRIX--
+
+# 73. Word Search
+# Link : https://leetcode.com/problems/word-search/
+
+# Given an m x n grid of characters board and a string word, return true if word exists in the grid.
+
+# The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. The same letter cell may not be used more than once.
+
+# Example 1:
+
+# Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+# Output: true
+
+# Example 2:
+
+# Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "SEE"
+# Output: true
+
+# Example 3:
+
+# Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCB"
+# Output: false
+
+# Constraints:
+
+# m == board.length
+# n = board[i].length
+# 1 <= m, n <= 6
+# 1 <= word.length <= 15
+# board and word consists of only lowercase and uppercase English letters.
+
+# Solution 1 - Python dfs solution with comments.
+
+def exist(self, board, word):
+    if not board:
+        return False
+    for i in xrange(len(board)):
+        for j in xrange(len(board[0])):
+            if self.dfs(board, i, j, word):
+                return True
+    return False
+
+# check whether can find word, start at (i,j) position    
+def dfs(self, board, i, j, word):
+    if len(word) == 0: # all the characters are checked
+        return True
+    if i<0 or i>=len(board) or j<0 or j>=len(board[0]) or word[0]!=board[i][j]:
+        return False
+    tmp = board[i][j]  # first character is found, check the remaining part
+    board[i][j] = "#"  # avoid visit agian 
+    # check whether can find "word" along one direction
+    res = self.dfs(board, i+1, j, word[1:]) or self.dfs(board, i-1, j, word[1:]) \
+    or self.dfs(board, i, j+1, word[1:]) or self.dfs(board, i, j-1, word[1:])
+    board[i][j] = tmp
+    return res
+
+# Solution 2 
+
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        
+        R = len(board)
+        C = len(board[0])
+        
+        if len(word) > R*C:
+            return False
+        
+        count = Counter(sum(board, []))
+        
+        for c, countWord in Counter(word).items():
+            if count[c] < countWord:
+                return False
+            
+        if count[word[0]] > count[word[-1]]:
+             word = word[::-1]
+                        
+        seen = set()
+        
+        def dfs(r, c, i):
+            if i == len(word):
+                return True
+            if r < 0 or c < 0 or r >= R or c >= C or word[i] != board[r][c] or (r,c) in seen:
+                return False
+            
+            seen.add((r,c))
+            res = (
+                dfs(r+1,c,i+1) or 
+                dfs(r-1,c,i+1) or
+                dfs(r,c+1,i+1) or
+                dfs(r,c-1,i+1) 
+            )
+            seen.remove((r,c))  #backtracking
+
+            return res
+        
+        for i in range(R):
+            for j in range(C):
+                if dfs(i,j,0):
+                    return True
+        return False
+
+# Solution 3 - Python | Faster than 98% w/ Proof | Easy to Understand
+
+def exist(self, board: List[List[str]], word: str) -> bool:
+	# Count number of letters in board and store it in a dictionary
+	boardDic = defaultdict(int)
+	for i in range(len(board)):
+		for j in range(len(board[0])):
+			boardDic[board[i][j]] += 1
+
+	# Count number of letters in word
+	# Check if board has all the letters in the word and they are atleast same count from word
+	wordDic = Counter(word)
+	for c in wordDic:
+		if c not in boardDic or boardDic[c] < wordDic[c]:
+			return False
+
+	# Traverse through board and if word[0] == board[i][j], call the DFS function
+	for i in range(len(board)):
+		for j in range(len(board[0])):
+			if board[i][j] == word[0]:
+				if self.dfs(i, j, 0, board, word):
+					return True
+
+	return False
+
+def dfs(self, i, j, k, board, word):
+	# Recursion will return False if (i,j) is out of bounds or board[i][j] != word[k] which is current letter we need
+	if i < 0 or j < 0 or i >= len(board) or j >= len(board[0]) or \
+	   k >= len(word) or word[k] != board[i][j]:
+		return False
+
+	# If this statement is true then it means we have reach the last letter in the word so we can return True
+	if k == len(word) - 1:
+		return True
+
+	directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+	for x, y in directions:
+		# Since we can't use the same letter twice, I'm changing current board[i][j] to -1 before traversing further
+		tmp = board[i][j]
+		board[i][j] = -1
+
+		# If dfs returns True then return True so there will be no further dfs
+		if self.dfs(i + x, j + y, k + 1, board, word): 
+			return True
+
+		board[i][j] = tmp
+
+# Solution 4 - [Python] dfs backtracking solution, explained
+
+# In general I think this problem do not have polynomial solution, so we need to check a lot of possible options. What should we use in this case: it is bruteforce, with backtracking. Let dfs(ind, i, j) be our backtracking function, where i and j are coordinates of cell we are currently in and ind is index of letter in word we currently in. Then our dfs algorithm will look like:
+
+# First, we have self.Found variable, which helps us to finish earlier if we already found solution.
+# Now, we check if ind is equal to k - number of symbols in word. If we reach this point, it means we found word, so we put self.Found to True and return back.
+# If we go outside our board, we return back.
+# If symbol we are currently on in words is not equal to symbol in table, we also return back.
+# Then we visit all neibours, putting board[i][j] = "#" before - we say in this way, that this cell was visited and changing it back after.
+# What concerns main function, we need to start dfs from every cell of our board and also I use early stopping if we already found word.
+
+# Complexity: Time complexity is potentially O(m*n*3^k), where k is length of word and m and n are sizes of our board: we start from all possible cells of board, and each time (except first) we can go in 3 directions (we can not go back). In practice however this number will be usually much smaller, because we have a lot of dead-ends. Space complexity is O(k) - potential size of our recursion stack. If you think this analysis can be improved, please let me know!
+
+class Solution:
+    def exist(self, board, word):
+        def dfs(ind, i, j):
+            if self.Found: return        #early stop if word is found
+
+            if ind == k:
+                self.Found = True                #for early stopping
+                return 
+
+            if i < 0 or i >= m or j < 0 or j >= n: return 
+            tmp = board[i][j]
+            if tmp != word[ind]: return
+
+            board[i][j] = "#"
+            for x, y in [[0,-1], [0,1], [1,0], [-1,0]]:
+                dfs(ind + 1, i+x, j+y)
+            board[i][j] = tmp
+        
+        self.Found = False
+        m, n, k = len(board), len(board[0]), len(word)
+        
+        for i, j in product(range(m), range(n)):
+            if self.Found: return True          #early stop if word is found
+            dfs(0, i, j)
+        return self.Found
+
+See also my solution for Word Search II, using tries:
+https://leetcode.com/problems/word-search-ii/discuss/712733/Python-Trie-solution-with-dfs-explained

@@ -1,0 +1,86 @@
+# --ARRAY--
+
+# 3Sum
+# Link : https://leetcode.com/problems/3sum/solutions/7498/python-solution-with-detailed-explanation/
+
+# Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.
+
+# Notice that the solution set must not contain duplicate triplets.
+
+# Example 1:
+
+# Input: nums = [-1,0,1,2,-1,-4]
+# Output: [[-1,-1,2],[-1,0,1]]
+# Explanation: 
+# nums[0] + nums[1] + nums[2] = (-1) + 0 + 1 = 0.
+# nums[1] + nums[2] + nums[4] = 0 + 1 + (-1) = 0.
+# nums[0] + nums[3] + nums[4] = (-1) + 2 + (-1) = 0.
+# The distinct triplets are [-1,0,1] and [-1,-1,2].
+# Notice that the order of the output and the order of the triplets does not matter.
+
+# Example 2:
+
+# Input: nums = [0,1,1]
+# Output: []
+# Explanation: The only possible triplet does not sum up to 0.
+
+# Example 3:
+
+# Input: nums = [0,0,0]
+# Output: [[0,0,0]]
+# Explanation: The only possible triplet sums up to 0.
+ 
+
+# Constraints:
+
+# 3 <= nums.length <= 3000
+# -10^5 <= nums[i] <= 10^5
+
+
+# Solution with discussion https://discuss.leetcode.com/topic/75883/python-solution-with-detailed-explanation
+
+# 3Sum https://leetcode.com/problems/3sum/
+
+# Sort based algorithm
+
+# a+b = -c. 3SUM reduces to 2SUM problem.
+# Handling Duplicates in 2SUM
+
+# Say index s and e are forming a solution in a sorted array. Now givens nums[s], there is a unique nums[e] such that nums[s]+nums[e]=Target. 
+# Therefore, if nums[s+1] is the same as nums[s], then searching in range s+1 to e will give us a duplicate solution. Thus we must move s till nums[s] != nums[s-1] to avoid getting duplicates.
+
+                        while s<e and nums[s] == nums[s-1]:
+                            s = s+1
+
+# Handling Duplicates in 3SUM
+
+# Imagine we are at index i and we have invoked the 2SUM problem from index i+1 to end of the array. 
+# Now once the 2SUM terminates, we will have a list of all triplets which include nums[i]. To avoid duplicates, we must skip all nums[i] where nums[i] == nums[i-1].
+            if i > 0 and nums[i] == nums[i-1]:
+                continue
+Code
+
+class Solution(object):
+    def threeSum(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+        nums.sort()
+        N, result = len(nums), []
+        for i in range(N):
+            if i > 0 and nums[i] == nums[i-1]:
+                continue
+            target = nums[i]*-1
+            s,e = i+1, N-1
+            while s<e:
+                if nums[s]+nums[e] == target:
+                    result.append([nums[i], nums[s], nums[e]])
+                    s = s+1
+                    while s<e and nums[s] == nums[s-1]:
+                        s = s+1
+                elif nums[s] + nums[e] < target:
+                    s = s+1
+                else:
+                    e = e-1
+        return result

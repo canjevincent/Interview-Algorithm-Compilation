@@ -1,0 +1,281 @@
+# --STRING--
+
+# Minimum Window Substring
+# Link : https://leetcode.com/problems/minimum-window-substring/
+
+# Given two strings s and t of lengths m and n respectively, return the minimum window substring of s 
+# such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string "".
+
+# The testcases will be generated such that the answer is unique.
+
+# Example 1:
+
+# Input: s = "ADOBECODEBANC", t = "ABC"
+# Output: "BANC"
+# Explanation: The minimum window substring "BANC" includes 'A', 'B', and 'C' from string t.
+# Example 2:
+
+# Input: s = "a", t = "a"
+# Output: "a"
+# Explanation: The entire string s is the minimum window.
+# Example 3:
+
+# Input: s = "a", t = "aa"
+# Output: ""
+# Explanation: Both 'a's from t must be included in the window.
+# Since the largest window of s only has one 'a', return empty string.
+
+# Constraints:
+
+# m == s.length
+# n == t.length
+# 1 <= m, n <= 105
+# s and t consist of uppercase and lowercase English letters.
+
+# Solution 1 - 12 lines python
+
+# The current window is s[i:j] and the result window is s[I:J]. In need[c] I store how many times I need character c (can be negative) and missing tells how many characters are still missing. In the loop, first add the new character to the window. Then, if nothing is missing, remove as much as possible from the window start and then update the result.
+
+def minWindow(self, s, t):
+    need, missing = collections.Counter(t), len(t)
+    i = I = J = 0
+    for j, c in enumerate(s, 1):
+        missing -= need[c] > 0
+        need[c] -= 1
+        if not missing:
+            while i < j and need[s[i]] < 0:
+                need[s[i]] += 1
+                i += 1
+            if not J or j - i <= J - I:
+                I, J = i, j
+    return s[I:J]
+
+# Solution 2 - Python two pointer sliding window with explanation
+
+# The idea is we use a variable-length sliding window which is gradually applied across the string. We use two pointers: start and end to mark the sliding window. We start by fixing the start pointer and moving the end pointer to the right. The way we determine the current window is a valid one is by checking if all the target letters have been found in the current window. If we are in a valid sliding window, we first make note of the sliding window of the most minimum length we have seen so far. Next we try to contract the sliding window by moving the start pointer. If the sliding window continues to be valid, we note the new minimum sliding window. If it becomes invalid (all letters of the target have been bypassed), we break out of the inner loop and go back to moving the end pointer to the right.
+
+def found_target(target_len):
+    return target_len == 0
+
+class Solution(object):
+    def minWindow(self, search_string, target):
+        """
+        :type s: str
+        :type t: str
+        :rtype: str
+        """
+        target_letter_counts = collections.Counter(target)
+        start = 0
+        end = 0
+        min_window = ""
+        target_len = len(target)        
+        
+        for end in range(len(search_string)):
+			# If we see a target letter, decrease the total target letter count
+			if target_letter_counts[search_string[end]] > 0:
+                target_len -= 1
+
+            # Decrease the letter count for the current letter
+			# If the letter is not a target letter, the count just becomes -ve
+			target_letter_counts[search_string[end]] -= 1
+            
+			# If all letters in the target are found:
+            while found_target(target_len):
+                window_len = end - start + 1
+                if not min_window or window_len < len(min_window):
+					# Note the new minimum window
+                    min_window = search_string[start : end + 1]
+                    
+				# Increase the letter count of the current letter
+                target_letter_counts[search_string[start]] += 1
+                
+				# If all target letters have been seen and now, a target letter is seen with count > 0
+				# Increase the target length to be found. This will break out of the loop
+                if target_letter_counts[search_string[start]] > 0:
+                    target_len += 1
+                    
+                start+=1
+                
+        return min_window
+
+# Solution 3 - Simple Python sliding window solution with detailed explanation
+
+from collections import Counter
+
+class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+        '''
+        Keep t_counter of char counts in t
+        
+        We make a sliding window across s, tracking the char counts in s_counter
+        We keep track of matches, the number of chars with matching counts in s_counter and t_counter
+        Increment or decrement matches based on how the sliding window changes
+        When matches == len(t_counter.keys()), we have a valid window. Update the answer accordingly
+        
+        How we slide the window:
+        Extend when matches < chars, because we can only get a valid window by adding more.
+        Contract when matches == chars, because we could possibly do better than the current window.
+        
+        How we update matches:
+        This only applies if t_counter[x] > 0.
+        If s_counter[x] is increased to match t_counter[x], matches += 1
+        If s_counter[x] is increased to be more than t_counter[x], do nothing
+        If s_counter[x] is decreased to be t_counter[x] - 1, matches -= 1
+        If s_counter[x] is decreased to be less than t_counter[x] - 1, do nothing
+        
+        Analysis:
+        O(s + t) time: O(t) to build t_counter, then O(s) to move our sliding window across s. Each index is only visited twice.
+        O(s + t) space: O(t) space for t_counter and O(s) space for s_counter
+        '''
+        
+        if not s or not t or len(s) < len(t):
+            return ''
+        
+        t_counter = Counter(t)
+        chars = len(t_counter.keys())
+        
+        s_counter = Counter()
+        matches = 0
+        
+        answer = ''
+        
+        i = 0
+        j = -1 # make j = -1 to start, so we can move it forward and put s[0] in s_counter in the extend phase 
+        
+        while i < len(s):
+            
+            # extend
+            if matches < chars:
+                
+                # since we don't have enough matches and j is at the end of the string, we have no way to increase matches
+                if j == len(s) - 1:
+                    return answer
+                
+                j += 1
+                s_counter[s[j]] += 1
+                if t_counter[s[j]] > 0 and s_counter[s[j]] == t_counter[s[j]]:
+                    matches += 1
+
+            # contract
+            else:
+                s_counter[s[i]] -= 1
+                if t_counter[s[i]] > 0 and s_counter[s[i]] == t_counter[s[i]] - 1:
+                    matches -= 1
+                i += 1
+                
+            # update answer
+            if matches == chars:
+                if not answer:
+                    answer = s[i:j+1]
+                elif (j - i + 1) < len(answer):
+                    answer = s[i:j+1]
+        
+        return answer
+
+# Solution 4 - Python
+
+# My advice for solving this problem is to:
+
+# Understand the intuition and what to do at a high level
+# Try to implement your own solution WITHOUT copying anyone elses
+# This is how you will learn
+# You will remember high level concepts, but never line for line code
+# Intuition:
+
+# Two pointers, left and right
+# Both start from 0,0
+# Increase right pointer until valid window is found
+# Decrease left pointer until window is no longer valid
+# Add the minimum length window you've found to your results
+# Continue increasing right pointer, pretty much repeating what we did above
+# Return the minimum length of your results
+# My code is AC but definitely not optimal, so I have some more learning & practice to do. I just wanted to share that by trying to implement & solve most of the problem yourself (after learning the high level concept), your learning is massive.
+
+from collections import Counter
+
+
+class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+        
+        # Define variables
+        s_count, t_count = Counter(), Counter(t)
+        
+        l, r = 0, 0
+        
+        results = []
+        
+        while r <= len(s)-1:
+                                    
+            # Find valid window
+            s_count[s[r]] += 1            
+            r += 1
+            if s_count & t_count != t_count:
+                continue
+                
+            # Minimize this window
+            while l < r:
+                s_count[s[l]] -= 1 
+                l += 1
+                if s_count & t_count == t_count:
+                    continue
+                results.append(s[l-1:r])
+                break
+            
+            
+        # Return result
+        if not results:
+            return ""        
+        return min(results, key=len)
+
+# Solution 5 - Python | 🚀 ✅ Sliding Window | ✅ Fully Explained | ✅ Hash Table | ✅ String
+
+# Intuition:
+# The problem asks to find the minimum window in s that contains all the characters of t. One way to approach this problem is to use a sliding window technique. We can maintain a window that starts from the beginning of s and moves forward until it contains all the characters of t. Once we have such a window, we can try to shrink it by moving the window's start pointer forward while still keeping all the characters of t in the window. This will give us the minimum window.
+
+# Approach:
+
+# Check if s is shorter than t. If it is, there is no possible solution, and we return an empty string.
+# Create a frequency map of characters in t.
+# Initialize count, start, min_length, and min_start to 0.
+# Traverse the string s using the end pointer.
+# If the current character in s is present in the frequency map, increment the count.
+# Decrement the frequency of the current character in the frequency map.
+# If the count equals the length of t, it means we have found a window that contains all characters of t. Now we try to shrink the window by moving the start pointer forward until the window still contains all the characters of t.
+# If the length of the current window is smaller than the minimum length so far, update the minimum length and the minimum start.
+# Increment the frequency of the character at the start pointer and decrement the count.
+# Return the minimum window or an empty string if no window exists.
+# Complexity:
+# Time complexity: O(N), where N is the length of the string s. We traverse the string s once.
+# Space complexity: O(M), where M is the length of the string t. We create a frequency map of characters in t.
+
+# Code
+
+class Solution(object):
+    def minWindow(self, s, t):
+        if len(s) < len(t):
+            return ""
+        map = {}
+        for char in t:
+            if char in map:
+                map[char] += 1
+            else:
+                map[char] = 1
+        count = 0
+        start = 0
+        min_length = float("inf")
+        min_start = 0
+        for end in range(len(s)):
+            if s[end] in map:
+                map[s[end]] -= 1
+                if map[s[end]] >= 0:
+                    count += 1
+            while count == len(t):
+                if min_length > end - start + 1:
+                    min_length = end - start + 1
+                    min_start = start
+                if s[start] in map:
+                    map[s[start]] += 1
+                    if map[s[start]] > 0:
+                        count -= 1
+                start += 1
+        return "" if min_length == float("inf") else s[min_start:min_start+min_length]

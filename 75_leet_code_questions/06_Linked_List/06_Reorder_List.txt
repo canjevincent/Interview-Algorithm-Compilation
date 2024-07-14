@@ -1,0 +1,127 @@
+# --LINKED LIST--
+
+# Reorder List
+# Link : https://leetcode.com/problems/reorder-list/
+
+# You are given the head of a singly linked-list. The list can be represented as:
+# Reorder the list to be on the following form:
+# You may not modify the values in the list's nodes. Only nodes themselves may be changed.
+
+# Example 1:
+# Input: head = [1,2,3,4]
+# Output: [1,4,2,3]
+
+# Example 2:
+# Input: head = [1,2,3,4,5]
+# Output: [1,5,2,4,3]
+
+# Constraints:
+
+# The number of nodes in the list is in the range [1, 5 * 10^4].
+# 1 <= Node.val <= 1000
+
+# Solution 1 - [Python] 3 steps to success, explained
+
+# If you never solved singly linked lists problems before, or you do not have a lot of experience, this problem can be quite difficult. However if you already know all the tricks, it is not difficult at all. Let us first try to understand what we need to do. For list [1,2,3,4,5,6,7] we need to return [1,7,2,6,3,5,4]. We can note, that it is actually two lists [1,2,3,4] and [7,6,5], where elements are interchange. So, to succeed we need to do the following steps:
+
+# Find the middle of or list - be careful, it needs to work properly both for even and for odd number of nodes. For this we can either just count number of elements and then divide it by to, and do two traversals of list. Or we can use slow/fast iterators trick, where slow moves with speed 1 and fast moves with speed 2. Then when fast reches the end, slow will be in the middle, as we need.
+# Reverse the second part of linked list. Again, if you never done it before, it can be quite painful, please read oficial solution to problem 206. Reverse Linked List. The idea is to keep three pointers: prev, curr, nextt stand for previous, current and next and change connections in place. Do not forget to use slow.next = None, in opposite case you will have list with loop.
+# Finally, we need to merge two lists, given its heads. These heads are denoted by head and prev, so for simplisity I created head1 and head2 variables. What we need to do now is to interchange nodes: we put head2 as next element of head1 and then say that head1 is now head2 and head2 is previous head1.next. In this way we do one step for one of the lists and rename lists, so next time we will take element from head2, then rename again and so on.
+# Complexity: Time complexity is O(n), because we first do O(n) iterations to find middle, then we do O(n) iterations to reverse second half and finally we do O(n) iterations to merge lists. Space complexity is O(1).
+
+class Solution:
+    def reorderList(self, head):
+        #step 1: find middle
+        if not head: return []
+        slow, fast = head, head
+        while fast.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+        
+        #step 2: reverse second half
+        prev, curr = None, slow.next
+        while curr:
+            nextt = curr.next
+            curr.next = prev
+            prev = curr
+            curr = nextt    
+        slow.next = None
+        
+        #step 3: merge lists
+        head1, head2 = head, prev
+        while head2:
+            nextt = head1.next
+            head1.next = head2
+            head1 = head2
+            head2 = nextt
+
+# Solution 2 - (2-Pointers using Extra Space)
+
+# We can solve this question easily if using extra space is allowed. The re-ordering arrangement basically consist of 1st node, then last node, then 2nd node, then 2nd last node and so on till all nodes are covered. Thus, we just put one node from the start, then one from end in an alternating fashion. In this approach -
+
+# We first use an auxillary array to store the nodes of linked-list
+# Once the array is filled, we initialize two variables L and R which denotes the current positions on the two ends from which we need to re-order the list in alternate fashion
+# In odd iteration, we assign the next node as arr[L] and move the L pointer ahead
+# In even iteration, we assign the next node as arr[R] and move the R pointer backward
+# This will re-order the list as alternating nodes from start and end as required.
+
+class Solution:
+    def reorderList(self, head):
+        arr, Iter = [], head
+        while Iter:
+            arr.append(Iter)
+            Iter = Iter.next
+        
+        L, R = 1, len(arr)-1
+        for i in range(len(arr)):
+            if i & 1:
+                head.next = arr[L]
+                L += 1
+            else:
+                head.next = arr[R]
+                R -= 1
+            head = head.next
+        head.next = None
+
+# Time Complexity : O(N), where N is the number of nodes in the linked list. We traverse linked list once and store it in array. Then we traverse the array once. Thus overall time- O(2N) = O(N)
+# Space Complexity : O(N), required to store nodes of list into array
+
+# Solution 3 - (In-place Transformation)
+
+# In the above solution, we are simply using two pointers, one to the start and one to the end of array. The nodes pointed by these pointers are picked in alternating manner and then these pointers are iterated in opposite directions. This continues till they meet in the middle, i.e, all nodes are covered in the process.
+# But we are using extra space in the form of array. We required array to be able to iterate the R pointer in the backward direction which wouldnt be possible if we directly used linked list.
+# However, we can optimize the space by modifying our list to make it possible to iterate backwards from R pointer. We can simply reverse the 2nd half of the list which allows us to place R at the end and iterate backwards till the mid. Then the rest process remains similar in logic as above.
+
+# First find the mid of linked list. This can be done using slow & fast pointer algorithm
+# Then we reverse the 2nd half and place the R pointer at the end
+# Initialize L pointer to head->next
+# We can now simply re-order by placing nodes from L and R pointers in alternating fashion till they meet.
+
+class Solution:
+    def reorderList(self, head):
+        def middleNode(head):
+            slow, fast = head, head
+            while fast and fast.next:
+                slow = slow.next
+                fast = fast.next.next
+            return slow
+        
+        def reverseList(head):
+            prev = None
+            while head:
+                nextNode = head.next
+                head.next = prev
+                prev, head = head, nextNode
+            return prev
+
+        if not head or not head.next: return
+        R, L, i = reverseList(middleNode(head)), head.next, 0
+        while L != R:
+            if i & 1:
+                head.next, L = L, L.next
+            else:
+                head.next, R = R, R.next
+            head, i = head.next, i + 1
+
+# Time Complexity : O(N), we need O(N) to find mid of list, another O(N/2) = O(N) to reverse the 2nd half and finally O(N) to re-order the list. Thus overall time: O(3N) = O(N)
+# Space Complexity : O(1), only constant extra space is used

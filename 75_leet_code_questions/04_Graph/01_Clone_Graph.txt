@@ -1,0 +1,243 @@
+# --GRAPH--
+
+# Clone Graph
+# Link : https://leetcode.com/problems/clone-graph/solutions/902692/python-by-dfs-w-diagram/
+
+# Given a reference of a node in a connected undirected graph.
+
+# Return a deep copy (clone) of the graph.
+
+# Each node in the graph contains a value (int) and a list (List[Node]) of its neighbors.
+
+class Node {
+    public int val;
+    public List<Node> neighbors;
+}
+
+# Test case format:
+
+# For simplicity, each node's value is the same as the node's index (1-indexed). For example, the first node with val == 1, the second node with val == 2, and so on. The graph is represented in the test case using an adjacency list.
+
+# An adjacency list is a collection of unordered lists used to represent a finite graph. Each list describes the set of neighbors of a node in the graph.
+
+# The given node will always be the first node with val = 1. You must return the copy of the given node as a reference to the cloned graph.
+
+
+Example 1:
+
+Input: adjList = [[2,4],[1,3],[2,4],[1,3]]
+Output: [[2,4],[1,3],[2,4],[1,3]]
+Explanation: There are 4 nodes in the graph.
+1st node (val = 1)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+2nd node (val = 2)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+3rd node (val = 3)'s neighbors are 2nd node (val = 2) and 4th node (val = 4).
+4th node (val = 4)'s neighbors are 1st node (val = 1) and 3rd node (val = 3).
+
+Example 2:
+
+Input: adjList = [[]]
+Output: [[]]
+Explanation: Note that the input contains one empty list. The graph consists of only one node with val = 1 and it does not have any neighbors.
+
+Example 3:
+
+Input: adjList = []
+Output: []
+Explanation: This an empty graph, it does not have any nodes.
+
+# Constraints:
+
+# The number of nodes in the graph is in the range [0, 100].
+# 1 <= Node.val <= 100
+# Node.val is unique for each node.
+# There are no repeated edges and no self-loops in the graph.
+# The Graph is connected and all nodes can be visited starting from the given node.
+
+# [Python] dfs recursive solution, explained
+
+# When you see the problem about graph, the first thing you need to think about is some classical graph traversal: dfs or bfs. Usually, there are 3 options with same complexities you can choose from:
+
+# 1. Iterative dfs, that is dfs with stack
+# 2. Recursive dfs, which is a bit simpler to code, but be careful if you have very deep graphs.
+# 3. bfs - only iterative, there is no recursion version, because we use queue, not stack here.
+# Here I choose method number 2 (because it is easy to code of course)
+
+# Let us create global dictionary mapping, which will connect nodes from old graph with nodes from new graph and use recursive dfs function to construct these connections:
+
+# 1. First, add connection mapping[node] = Node(node.val)
+# 2. Traverse all neighbors of node and if node is not traversed, that is it is not in our mapping, then we run dfs for this neighbor. Also we add connection in new graph (we add it even if node is visited!)
+
+# Complexity: time complexity is O(E): this number of iterations we need for full dfs traversal. Space complexity is O(E+V) = O(E) for connected graph.
+
+class Solution:
+    def cloneGraph(self, node):
+        def dfs(node):
+            mapping[node] = Node(node.val)
+            for neigh in node.neighbors:
+                if neigh not in mapping: dfs(neigh)
+                mapping[node].neighbors += [mapping[neigh]]
+        
+        if not node: return node
+        mapping  = {}
+        dfs(node)
+        return mapping[node]
+
+✔️ [Python3] ITERATIVE BFS (beats 98%) ,､’`<(❛ヮ❛✿)>,､’`’`,､, Explained
+
+# UPVOTE if you like (🌸◠‿◠), If you have any question, feel free to ask.
+
+# To solve this problem we need two things:
+
+# 1. BFS to traverse the graph
+# 2. A hash map to keep track of already visited and already cloned nodes
+
+# We push a node in the queue and make sure that the node is already cloned. Then we process neighbors. If a neighbor is already cloned and visited, 
+# we just append it to the current clone neighbors list, otherwise, we clone it first and append it to the queue to make sure that we can visit it in the next tick.
+
+# Time: O(V + E) - for BFS
+# Space: O(V) - for the hashmap
+
+# Runtime: 32 ms, faster than 98.18% of Python3 online submissions for Clone Graph.
+# Memory Usage: 14.4 MB, less than 91.72% of Python3 online submissions for Clone Graph.
+
+class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        if not node: return node
+        
+        q, clones = deque([node]), {node.val: Node(node.val, [])}
+        while q:
+            cur = q.popleft() 
+            cur_clone = clones[cur.val]            
+
+            for ngbr in cur.neighbors:
+                if ngbr.val not in clones:
+                    clones[ngbr.val] = Node(ngbr.val, [])
+                    q.append(ngbr)
+                    
+                cur_clone.neighbors.append(clones[ngbr.val])
+                
+        return clones[node.val]
+
+# Python by DFS [w/ Diagram]
+
+# Hint:
+
+# Stage_1:
+
+# Create deep copy for each node in DFS
+# Maintain a mapping relation (i.e., hash map or dictionary) between original ones and deep-copy ones.
+
+# Stage_2:
+
+# Rebuild neighbor list in DFS with mapping relation.
+
+# Implementation:
+
+class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        
+        # key: memory id of original node
+        # value: corresponding deep copy node
+        mapping = {}
+        
+        # -----------------------------------------
+        def helper( node: 'Node' ) -> 'Node':
+            
+            if not node:
+    
+                # empty node's deep copy is still empty node
+                return node
+            
+            elif id(node) in mapping:
+                
+                # current node already has deep copy
+                return mapping[ id(node) ]
+            
+            # create deep copy for current node
+            mapping[ id(node) ] = Node( val=node.val, neighbors=[] )
+            
+            for original_neighbor in node.neighbors:
+                # update neighbor list for current node
+                mapping[ id(node) ].neighbors.append( helper(original_neighbor) )
+            
+            return  mapping[ id(node) ]
+        
+        # -----------------------------------------
+        return helper( node )
+
+# Share another implementation with stage 1 and stage 2 individually
+
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val = 0, neighbors = None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+"""
+
+class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        
+		## dictionary for mapping relation
+		# key: memory ID of original node
+		# value: corresponding deep-copy node
+        mapping = {}
+        
+		# record of nodes whose neighbor list has been rebuilt
+        rebuild = set()
+        
+        # -----------------------------------------------------------
+        
+        def dfs_copy( node ):
+            
+            if id(node) in mapping:
+                
+                # current node has deep copy already
+                return
+            
+            # create deep copy of current node
+            mapping[id(node)] = Node(val=node.val, neighbors=[])
+            
+            for ori_neighbor in node.neighbors:
+                
+                # create deep copy for original neighbors
+                dfs_copy( ori_neighbor )
+                
+        # -----------------------------------------------------------
+        
+        def dfs_rebuild_neighbor( node ):
+            
+            if node in rebuild:
+                
+                # neighbor list has been rebuilt already
+                return
+            
+            for ori_neighbor in node.neighbors:
+                # rebuild neighbor for deep-copy nodes
+                mapping[id(node)].neighbors.append( mapping[id(ori_neighbor)] )
+            
+            # current node has been rebuilt with neighbors of deep-copy
+            rebuild.add( node )
+            
+            for ori_neighbor in node.neighbors:
+                # rebuild neighbor list in dfs
+                dfs_rebuild_neighbor( ori_neighbor )
+        
+        # -----------------------------------------------------------
+        
+        if node:
+            
+            # non-empty node
+			
+			# create deep-copy and maintain mapping relation
+            dfs_copy( node )
+			
+			# rebuild neighbor list
+            dfs_rebuild_neighbor( node )
+			
+            return mapping[ id(node) ]
+        
+        else:
+            
+            # empty node (i.e., empty graph)
+            return None

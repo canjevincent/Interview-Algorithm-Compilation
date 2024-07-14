@@ -1,0 +1,74 @@
+https://www.youtube.com/watch?v=nJIEIzF7tDw
+
+CREATE TABLE tr_sql_employee_department.employee (
+    emp_id INT,
+    emp_name VARCHAR(50) NOT NULL,
+    dept_name VARCHAR(50) NOT NULL,
+    salary INT,
+    CONSTRAINT emp_id PRIMARY KEY (emp_id)
+);
+
+INSERT INTO tr_sql_employee_department.employee (emp_name, dept_name, salary) VALUES ('Monica', 'Admin', '5000');
+INSERT INTO tr_sql_employee_department.employee (emp_name, dept_name, salary) VALUES ('Rosalin', 'IT', '6000');
+INSERT INTO tr_sql_employee_department.employee (emp_name, dept_name, salary) VALUES ('Ibrahim', 'IT', '8000');
+INSERT INTO tr_sql_employee_department.employee (emp_name, dept_name, salary) VALUES ('Vikram', 'IT', '8000');
+INSERT INTO tr_sql_employee_department.employee (emp_name, dept_name, salary) VALUES ('Dheeraj', 'IT', '11000');
+
+INSERT INTO tr_sql_employee_department.department (dept_id, dept_name, location) VALUES (1,'HR','Bangalore');
+INSERT INTO tr_sql_employee_department.department (dept_id, dept_name, location) VALUES (2,'IT','Bangalore');
+INSERT INTO tr_sql_employee_department.department (dept_id, dept_name, location) VALUES (3,'Finance','Mumbai');
+INSERT INTO tr_sql_employee_department.department (dept_id, dept_name, location) VALUES (4,'Marketing','Bangalore');
+INSERT INTO tr_sql_employee_department.department (dept_id, dept_name, location) VALUES (5,'Sales','Mumbai'); 
+
+create table tr_sales_store.store (
+	store_id INT AUTO_INCREMENT,
+  store_name varchar(50) NOT NULL,
+  product_name varchar(50) NOT NULL,
+  quantity INT,
+  price INT
+);
+
+INSERT INTO tr_sales_store.store (store_id, store_name, product_name, quantity, price) VALUES ('3','Apple Store 3','MacBook pro 14','1','2000');
+INSERT INTO tr_sales_store.store (store_id, store_name, product_name, quantity, price) VALUES ('3','Apple Store 3','MacBook Air','4','4400');
+INSERT INTO tr_sales_store.store (store_id, store_name, product_name, quantity, price) VALUES ('3','Apple Store 3','iPhone 13','2','1800');
+INSERT INTO tr_sales_store.store (store_id, store_name, product_name, quantity, price) VALUES ('3','Apple Store 3','AirPods Pro','3','750');
+INSERT INTO tr_sales_store.store (store_id, store_name, product_name, quantity, price) VALUES ('4','Apple Store 4','iPhone 12 Pro','2','1500');
+INSERT INTO tr_sales_store.store (store_id, store_name, product_name, quantity, price) VALUES ('4','Apple Store 4','MacBook pro 16','1','3500');
+
+SUBQUERY IS ALLOWED ON THIS CLAUSE
+-SELECT 
+-FROM
+-WHERE
+-HAVING
+
+EXAMPLE 1 ( NOT BEST PRACTICE)
+
+select * from (select store_name, sum(price) as total_sales 
+               from tr_sales_store.store 
+               group by store_name) sales
+join (select avg(total_sales) as sales
+      from (select store_name, sum(price) as total_sales
+            from tr_sales_store.store
+            group by store_name) x) avg_sales
+      on sales.total_sales > avg_sales.sales;
+  
+EXAMPLE 2 ( BEST PRACTICE )
+
+with tr_sales_store.store as 
+     (select store_name, sum(price) as total_sales
+      from sales
+      group by store_name)
+select *
+from sales
+join (select avg(total_sales) as sales
+      from sales x) avg_sales
+      on sales.total_sales > avg_sales.sales
+
+EXAMPLE 3 
+
+select *,
+(case when salary > (select avg(salary) from employee)
+ 	then 'Higher than average'
+ else null
+ end) as remarks
+ from tr_sql_employee_department.employee;

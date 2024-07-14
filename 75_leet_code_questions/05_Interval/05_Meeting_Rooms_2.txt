@@ -1,0 +1,129 @@
+# --INTERVAL--
+
+# Meeting Rooms 2
+# Link : https://leetcode.ca/2016-08-09-253-Meeting-Rooms-II/
+
+# Given an array of meeting time intervals "intervals" where "intervals[i] = [start,end]", return the minimum number of conference rooms required.
+
+# Example 1:
+
+# Input: intervals = [[0,30],[5,10],[15,20]]
+# Output: 2
+
+# Example 2:
+# Input: intervals = [[7,10],[2,4]]
+# Output: 1
+
+# Constraints:
+
+# 1 <= intervals.length <= 104
+# 0 <= starti < endi <= 106
+
+# Algorithm
+
+# TreeMap
+# Traverse the time interval. For the start time, the mapping value is incremented by 1, and for the end time, the mapping value is decremented by 1.
+
+# Then define the result variable res, and the number of rooms rooms, traverse the TreeMap, time from small to large, add the mapping value to the number of rooms each time, and then update the result res. When the starting time is encountered, the mapping is positive, the number of rooms will increase.
+
+
+# If a time is the end time of one meeting and the start time of another meeting, the mapping value is decreased first and then increased and remains at 0, no new room is allocated, and the mapping value of the end time is a negative number and will not increase the number of rooms.
+
+# Heap
+# First sort all the time intervals according to the starting time, and then create a new minimum heap.
+
+# Start traversing the time interval. If the heap is not empty and the first element is less than or equal to the start time of the current interval, remove the first element from the heap and push the end time of the current interval into the heap.
+
+
+# Since the smallest heap is at the front, if the first element is less than or equal to the start time, it means that the previous meeting has ended and the meeting room can be used to start the next meeting, so there is no need to allocate a new meeting room. After the traversal is completed, the heap The number of elements is the number of meeting rooms needed.
+
+# Solution 1 - Code
+
+'''
+data = [3, 4, 6, 2, 1, 9, 0, 7, 5, 8]
+
+list(accumulate(data, operator.mul))     # running product
+[3, 12, 72, 144, 144, 1296, 0, 0, 0, 0]
+
+list(accumulate(data, max))              # running maximum
+[3, 4, 6, 6, 6, 9, 9, 9, 9, 9]
+
+
+>>> from itertools import accumulate
+>>> data = [3, 4, 6, 2, 1, 9, 0, 7, 5, 8]
+>>> accumulate(data)
+<itertools.accumulate object at 0x10fd78440>
+>>> list(accumulate(data))
+[3, 7, 13, 15, 16, 25, 25, 32, 37, 45]
+>>> max(accumulate(data))
+45
+
+https://docs.python.org/3/library/itertools.html#itertools.accumulate
+
+
+# Amortize a 5% loan of 1000 with 4 annual payments of 90
+cashflows = [1000, -90, -90, -90, -90]
+list(accumulate(cashflows, lambda bal, pmt: bal*1.05 + pmt))
+[1000, 960.0, 918.0, 873.9000000000001, 827.5950000000001]
+'''
+class Solution:
+    def minMeetingRooms(self, intervals: List[List[int]]) -> int:
+        delta = [0] * 1000010
+        for start, end in intervals:
+            delta[start] += 1
+            delta[end] -= 1
+        return max(accumulate(delta))
+        # why not delta.sort()?
+        # because accumulate() will go by order from index 0 to index final
+        # just like, from sortedcontainers import SortedDict
+
+############
+
+class Solution(object):
+  def minMeetingRooms(self, intervals):
+    """
+    :type intervals: List[Interval]
+    :rtype: int
+    """
+    meetings = []
+    for i in intervals:
+      meetings.append((i.start, 1))
+      meetings.append((i.end, 0))
+    meetings.sort()
+    ans = 0
+    count = 0
+    for meeting in meetings:
+      if meeting[1] == 1:
+        count += 1
+      else:
+        count -= 1
+      ans = max(ans, count)
+    return ans
+
+# Thoughts:
+
+# Sort the interval by the start time
+# Using the priority queue to use the end time as the order to sort the used classroom
+# pop the earliest ending meeting room, check if the time ends earlier than the start time of current class being scheduled, if earlier, merge the interval by setting the poped intervals'end time as the current intervals' scheduled end time, push the current interval into pq as making a new room.
+# return the size of the pq as the result
+
+# Solution 2 - Code
+
+# Definition for an interval.
+# class Interval(object):
+#     def __init__(self, s=0, e=0):
+#         self.start = s
+#         self.end = e
+
+class Solution(object):  
+    def minMeetingRooms(self, intervals):
+        events = [(it.start, +1) for it in intervals] + [(it.end, -1) for it in intervals]
+        events = sorted(events)
+
+        rooms = 0
+        max_concurrent = 0
+        for t, inc in events:
+            rooms += inc
+            max_concurrent = max(max_concurrent, rooms)
+
+        return max_concurrent

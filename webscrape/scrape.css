@@ -1,0 +1,19 @@
+/* Title */
+css selector = body > div.dialog-off-canvas-main-canvas > div.off-canvas-wrapper > div.layout-container > div.region-content-above > div.view-block-full > div.views-element-container > div.view-blog > div.view-main > div.view-body > div.view-content > div.views-row > article > div.node__content > h3 > a > span
+Xpath = // body / div[@class="dialog-off-canvas-main-canvas"] / div[@class="off-canvas-wrapper"] / div[2] / div[2] / div[4] / div[@class="views-element-container"] / div[1] / div[@class="view-main"] / div[@class="view-body"] / div[@class="view-content"] / div / article / div[@class="node__content"] / h3 / a / span
+
+/* Link Url */
+css selector = body > div.dialog-off-canvas-main-canvas > div.off-canvas-wrapper > div.layout-container > div.region-content-above > div.view-block-full > div.views-element-container > div.view-blog > div.view-main > div.view-body > div.view-content > div.views-row > article > div.node__content > h3 > a
+Xpath = // body / div[@class="dialog-off-canvas-main-canvas"] / div[@class="off-canvas-wrapper"] / div[2] / div[2] / div[4] / div[@class="views-element-container"] / div[1] / div[@class="view-main"] / div[@class="view-body"] / div[@class="view-content"] / div / article / div[@class="node__content"] / h3 / a 
+
+/* Publication Date */
+css selector = body > div.dialog-off-canvas-main-canvas > div.off-canvas-wrapper > div.layout-container > div.region-content-above > div.view-block-full > div.views-element-container > div.view-blog > div.view-main > div.view-body > div.view-content > div.views-row > article > div.node__content > span
+Xpath = // body / div[@class="dialog-off-canvas-main-canvas"] / div[@class="off-canvas-wrapper"] / div[2] / div[2] / div[4] / div[@class="views-element-container"] / div[1] / div[@class="view-main"] / div[@class="view-body"] / div[@class="view-content"] / div / article / div[@class="node__content"] / span
+
+/* Author */
+css selector = body > div.dialog-off-canvas-main-canvas > div.off-canvas-wrapper > div.layout-container > div.region-content-above > div.view-block-full > div.views-element-container > div.view-blog > div.view-main > div.view-body > div.view-content > div.views-row > article > div.node__content > div.field__items > div
+Xpath = // body / div[@class="dialog-off-canvas-main-canvas"] / div[@class="off-canvas-wrapper"] / div[2] / div[2] / div[4] / div[@class="views-element-container"] / div[1] / div[@class="view-main"] / div[@class="view-body"] / div[@class="view-content"] / div / article / div[@class="node__content"] / div / div
+
+/* CONTENT */
+css selector = body > div.dialog-off-canvas-main-canvas > div.off-canvas-wrapper > div.layout-container > main#main-content > div.layout-content > div.region-content > div#block-perfecto-content > article > div.node__content > div.field--type-text-with-summary
+Xpath = // body / div[@class="dialog-off-canvas-main-canvas"] / div[@class="off-canvas-wrapper"] / div[2] / main[@id="main-content"] / div[@class="layout-content"] / div[1] / div[@id="block-perfecto-content"] / article / div[@class="node__content"] / div[3]

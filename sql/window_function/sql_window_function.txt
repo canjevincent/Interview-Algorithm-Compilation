@@ -1,0 +1,137 @@
+https://www.youtube.com/watch?v=Ww71knvhQ-s&list=PLavw5C92dz9Ef4E-1Zi9KfCTXS_IN8gXZ&index=9&pp=iAQB
+https://www.youtube.com/watch?v=zAmJPdZu8Rg&list=PLavw5C92dz9Ef4E-1Zi9KfCTXS_IN8gXZ&index=10&pp=iAQB
+
+select dept_name, max(salary) as max_salary
+from employee
+group by dept_name;
+
+select e.*;
+max(salary) over(partition by dept_name) as max_salary
+from employee e;
+
+-- row_number, rank, dense_rank, lead and lag
+
+select e.*,
+row_number() over(partition by dept_name) as rn
+from employee e;
+
+-- Fetch the first 2 employees from each department to join the company.
+
+select * from (
+  select e.*,
+  row_number() over(partition by dept_name order by emp_id) as rn
+  from employee e) x
+where x.rn < 3
+
+-- Fetch the top 3 employees in each department earning the max salary.
+
+select * from (
+  select e.*,
+  rank() over(partition by dept_name order by salary desc) as rnk
+  from employee e) x
+where x.rnk < 4;
+
+select e.*,
+rank() over(partition by dept_name order by salary desc) as rnk,
+dense_rank() over(partition by dept_name order by salary desc) as DENSE_rnk,
+row_number() over(partition by dept_name order by salary desc) as rn
+from employee e;
+
+-- Fetch a query to display if the salary of an employee is higher, lower or equal
+   to the previous employee.
+
+ select e.*,
+ lag(salary) over (partition by dept_name order by emp_id) as prev_emp_salary,
+ lead(salary) over (partition by dept_name order by emp_id) as next_emp_salary
+ from employee e;
+
+ select e.*,
+ lag(salary) over (partition by dept_name order by emp_id) as prev_emp_salary,
+ case when e.salary > lag(salary) over (partition by dept_name order by emp_id) then 'Higher than previous employee'
+      when e.salary < lag(salary) over (partition by dept_name order by emp_id) then 'Lower than previous employee'
+      when e.salary = lag(salary) over (partition by dept_name order by emp_id) then 'Same as than previous employee'
+      end sal_range
+from employee e; 
+
+-- FIRST_VALUE
+-- Write query to display the most expensive product under each category (corresponding to each record)
+
+select *,
+first_value(product_name) over (partition by product_category order by price desc) as most_exp_product
+from product;
+
+-- LAST_VALUE
+-- Write query to display the least expensive product under each category (corresponding to each record)
+
+select *,
+first_value(product_name) 
+  over (partition by product_category order by price desc) 
+  as most_exp_product,
+last_value(product_name) 
+  over (partition by product_category order by price desc
+        range between unbounded preceding and unbounded following) --Frame Clause
+  as least_exp_product
+from product;
+
+-- Alternate way to write SQL query using window functions
+select *,
+first_value(product_name) over w as most_exp_product,
+last_value(product_name) over w as least_exp_product
+from product
+window w as (partition by product_category order by price desc
+         range between unbounded preceding and unbounded following);
+
+-- NTH_VALUE
+-- Write query to display the second most expensive product under each category.
+
+select *,
+first_value(product_name) over w as most_exp_product,
+last_value(product_name) over w as least_exp_product,
+nth_value(product_name, 2) over w as second_most_exp_product
+from product
+window w as (partition by product_category order by price desc
+         range between unbounded preceding and unbounded following);
+
+-- NTILE
+-- Write a query to segregate all the expensive phones, mid range phones and the cheaper phones.
+
+select product_name,
+case when x.buckets = 1 then 'Expensive Phones'
+     when x.buckets = 2 then 'Mid Range Phones'
+     when x.buckets = 3 then 'Cheaper Phones' END phone_category
+from (select *,
+      ntile(3) over (order by price desc) as buckets
+      from product
+      where product_category='Phone') x ;
+
+-- CUME_DIST (cumulative distribution);
+
+/* Value --> 1 <= CUME_DIST > 0 */
+/* Formula = Current Row no (or Row No with value same as current row) / Total no of rows */
+
+-- Query to fetch all products which are constituting the first 30%
+-- of the data in products table based on price.
+
+select product_name, (cum_dist_percentage||'%') as cum_dist_percentage
+from (
+    select *,
+    cume_dist() over (order by price desc) as cume_distribution,
+    round(cume_dist() over (order by price desc)::numeric * 100, 2) as cume_distribution
+from product) x
+where x.cume_dist_percentage <= 30;
+
+--PERCENT_RANK (relative rank of the current row / Percentage Ranking)
+/* Value --> 1 <= PERCENT_RANK > 0 */
+/* Formula = Current Row No - 1 / Total no of rows - 1 */
+
+-- Query to identify how much percentage more expensive is "Galaxy Z Fold 3" when compared to all product.
+
+select product_name, per_rank
+from (
+    select *,
+    percent_rank() over(order by price) as percentage_rank,
+    round(percent_rank() over(order by price)::numeric * 100, 2) as per_rank
+    from product) x
+where x.product_name = 'Galaxy Z Fold 3';
+
+

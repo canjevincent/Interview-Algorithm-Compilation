@@ -1,0 +1,26 @@
+-- Syntax
+WITH [RECURSIVE] CTE_name AS
+  (
+    SELECT query (Non Recursive query or the Base query)
+      UNION [ALL]
+    SELECT query (Recursive query using CTE_name [with a termination condition])
+  )
+SELECT * FROM CTE_name;
+
+-- Queries:
+-- Q1: Display number 1 to 10 without using any in built functions.
+-- Q2: Find the hierarchy of employees under a given manager "Asha".
+-- Q3: Find the hierarchy of manager for a given employee "David".
+
+with recursive emp_hierarchy as
+    (
+     select id, name, manager_id, designation, 1 as lvl
+     from emp_details where name='David'
+     union
+     select E.id, E.name, E.manager_id, E.designation, H.lvl + 1 as lvl
+     from emp_hierarchy H
+     join emp_details E on H.manager_id = E.id
+    )
+select H2.id as emp_id, H2.name as emp_name, E2.name as manager_name, H2.lvl as level
+from emp_hierarchy H2
+join emp_details E2 on E2.id = H2.manager_id; 

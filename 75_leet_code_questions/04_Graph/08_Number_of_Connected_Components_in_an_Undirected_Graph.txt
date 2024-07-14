@@ -1,0 +1,125 @@
+# --GRAPH--
+
+# Number of Connected Components in an Undirected Graph ( PREMIUM )
+# Link : https://github.com/KrisYu/LeetCode-CLRS-Python/blob/master/323.%20Number%20of%20Connected%20Components%20in%20an%20Undirected%20Graph.md
+# Youtube: https://www.youtube.com/watch?v=8f1XPm4WOUc
+
+# You have graph of n nodes. You are given an integer n and an array edges where edges[i] = [ai, bi] indicates that there is an edge betwee ai, and bi in the graph.
+
+# Return the number of connected components in the graph.
+
+Input: n = 5, edges = [[0,1],[1,2],[3,4]]
+Output: 2
+
+# Solution 1
+
+class Solution:
+
+  def countComponents(self, n: int, edges: List[List[int]]) -> int:
+
+    par = [i for i in range(n)]
+    rank = [1] * n
+
+    def find(n1):
+
+      res = n1
+
+      while res != par[res]:
+        par[res] = par[par[res]]
+        res = par[res]
+      
+      return res
+      
+    def union(n1, n2):
+      p1, p2 = find(n1), find(n2)
+
+      if p1 == p2:
+        return 0
+      
+      if rank[p2] > rank[p1]:
+        par[p1] = p2
+        rank[p2] += rank[p1]
+      else:
+        par[p2] = p1
+        rank[p1] += rank[p2]
+      return 1
+    
+    res = n
+    for n1, n2 in edges:
+      res -= union(n1, n2)
+    
+    return res
+
+# Solution 2
+
+# The easiest thing to think of is to do dfs for each node? Then find that it has been marked and ignore it, and finally count the number of dfs?
+
+# Try this way, when n = 2000, TLE
+
+class Solution(object):
+    def countComponents(self, n, edges):
+        """
+        :type n: int
+        :type edges: List[List[int]]
+        :rtype: int
+        """
+        def dfs(node):
+        	if visited[node] == 1:
+        		return 
+        	else:
+        		visited[node] = 1
+        		for node1, node2 in edges:
+        			if node1 == node:
+        				dfs(node2)
+        			elif node2 == node:
+        				dfs(node1)
+
+        res = 0
+        visited = [ 0 for i in range(n)]
+        for i in range(n):
+        	if visited[i] == 0:
+        		dfs(i)
+        		res += 1
+        return res
+
+# The tag is union find, is it a waste to use it?
+
+# The so-called union find should not be done for each dfs, but each to see if they belong to the same set, one dfs, and then loop to do union find
+
+# Disjoint-set_data_structure
+
+# https://zh.wikipedia.org/wiki/ and search
+
+# There is a great implementation here
+
+# AC code
+
+# I'm lazy here, the island is 0-n, and only path compression is done, no more optimization
+
+class Solution(object):
+    def countComponents(self, n, edges):
+        """
+        :type n: int
+        :type edges: List[List[int]]
+        :rtype: int
+        """
+        def find(x):
+        	if uf[x] != x:
+        		uf[x] = find(uf[x])
+        	return uf[x]
+
+        def union(x,y):
+        	xRoot = find(x)
+        	yRoot = find(y)
+        	uf[xRoot] = yRoot
+
+        uf = [i for i in range(n)]
+
+        for node1, node2 in edges:
+        	union(node1, node2)
+
+        res = set()
+        for i in range(n):
+        	res.add(find(i))
+
+        return len(res)

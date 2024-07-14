@@ -1,0 +1,23 @@
+CALCULUS 
+
+A. Coding Question 3: Implement a function to calculate the numerical derivative of a given mathematical function at a specific point.
+
+Assumptions: The input function will be provided as a Python lambda function or a string representation of a mathematical expression, and the point at which the derivative is calculated will be provided as a numeric value.
+
+Sample Input: Function: f(x) = sin(x) Point: x = π/4
+
+Expected Output:
+
+0.70710678118
+
+=======================================
+
+B. Coding Question 4: Implement a function to find the definite integral of a given mathematical function within a specified interval.
+
+Assumptions: The input function will be provided as a Python lambda function or a string representation of a mathematical expression, and the interval limits will be provided as numeric values.
+
+Sample Input: Function: f(x) = x^2 + 3x + 2 Interval: [1, 3]
+
+Expected Output:
+
+16.3333333333

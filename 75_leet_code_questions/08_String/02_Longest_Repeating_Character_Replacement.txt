@@ -1,0 +1,225 @@
+# --STRING--
+
+# Longest Substring Without Repeating Characters
+# Link : https://leetcode.com/problems/longest-repeating-character-replacement/
+
+# You are given a string s and an integer k. You can choose any character of the string and change it to any other uppercase English character. You can perform this operation at most k times.
+
+# Return the length of the longest substring containing the same letter you can get after performing the above operations.
+
+# Example 1:
+
+# Input: s = "ABAB", k = 2
+# Output: 4
+# Explanation: Replace the two 'A's with two 'B's or vice versa.
+# Example 2:
+
+# Input: s = "AABABBA", k = 1
+# Output: 4
+# Explanation: Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+# The substring "BBBB" has the longest repeating letters, which is 4.
+# There may exists other ways to achieve this answer too.
+
+# Constraints:
+
+# 1 <= s.length <= 10^5
+# s consists of only uppercase English letters.
+# 0 <= k <= s.length
+
+# Solution 1 - Python: Two-Pointers + Process for coding interviews
+
+# Hello,
+
+# Here is my solution with my process for coding interview. All feedbacks are welcome.
+
+# Problem Summary / Clarifications / TDD:
+# Ouput(ABAB, 2): 4
+# Ouput(AABABBA, 1): 4
+# Ouput(BAAAABBA, 1): 5
+# Ouput(BAAAABBA, 3): 8
+# Ouput(BAAAABBBBBA, 1): 6
+# Ouput(CBAAAABBBBBA, 2): 6
+# Ouput(CBAAAABBBBBA, 1): 6
+# Ouput(CABAAAABBBBBA, 2): 7
+
+# Intuition:
+# - Scan the array with 2 pointers: left and right
+# - Store the frequency of each character
+# - Compute the replacement cost: cells count between left and right pointers - the highest frequency
+# - if the replacement cost <= k: update longest string size
+# - if the replacement cost > k: decrease frequency of character at left pointer; increase left pointer and repeat
+# - - - Since we are looking for the longest sub-string, we don't need to shrink the sliding window by more than 1 character:
+# - - - When we reach a window of size W, we know that our target window size is higher or equal to the current one ( >= W).
+# - - - Therefore, we could continue sliding with a window of W cells until we find a larger window > W.
+
+#  0   1   2   3   4   5   6   7   8   9   10  11  12
+#  C   A   B   A   A   A   A   B   B   B   B   B   A,  k,  Replacement Cost,    max len
+# l^r                                                  2   1 - 1 = 0 <=k           1    => increase r
+# l^  ^r                                               2   2 - 1 = 1 <=k           2    => increase r
+# l^       ^r                                          2   3 - 1 = 2 <=k           3    => increase r
+# l^           ^r                                      2   4 - 2 = 2 <=k           4    => increase r
+# l^               ^r                                  2   5 - 3 = 2 <=k           5    => increase r
+# l^                   ^r                              2   6 - 4 = 2 <=k           6    => increase r
+# l^                      r^                           2   7 - 5 = 2 <=k           7    => increase r
+# l^                          r^                       2   8 - 5 = 3 > k           7    => increase l,r
+#     l^                          r^                   2   8 - 5 = 3 > k           7    => increase l,r
+#         l^                           r^              2   8 - 4 = 4 > k           7    => increase l,r
+#             l^                           r^          2   8 - 4 = 4 > k           7    => increase l,r
+#                 l^                           r^      2   8 - 5 = 3 > k           7    => increase l,r
+#                      l^                          r^  2   8 - 4 = 4 > k           7    => STOP
+
+# Tests: you may want to:
+# - to use all test cases above
+# - to add test cases based on your code (coverage): test your code as soon as you can
+# - to test edge & special cases:
+
+# An empty string,
+# A string with 1 character, A
+# A string with same character: AAAAA
+# A string that containing distinct characters: ABCDEFGHI
+# Analysis:
+# - Time Complexity: O(26 |s|) = O(|s|)
+# - Space Complexity: O(26) = O(1)
+
+def characterReplacement(self, s: str, k: int) -> int:
+        
+        l = 0
+        c_frequency = {}
+        longest_str_len = 0
+        for r in range(len(s)):
+            
+            if not s[r] in c_frequency:
+                c_frequency[s[r]] = 0
+            c_frequency[s[r]] += 1
+            
+            # Replacements cost = cells count between left and right - highest frequency
+            cells_count = r - l + 1
+            if cells_count - max(c_frequency.values()) <= k:
+                longest_str_len = max(longest_str_len, cells_count)
+                
+            else:
+                c_frequency[s[l]] -= 1
+                if not c_frequency[s[l]]:
+                    c_frequency.pop(s[l])
+                l += 1
+        
+        return longest_str_len
+
+# Solution 2 - [Python] Sliding Window, just O(n)
+
+Explanation
+maxf means the max frequency of the same character in the sliding window.
+To better understand the solution,
+you can firstly replace maxf with max(count.values()),
+Now I improve from O(26n) to O(n) using a just variable maxf.
+
+Complexity
+Time O(n)
+Space O(128)
+
+Approach 1
+
+def characterReplacement(self, s, k):
+    maxf = res = 0
+    count = collections.Counter()
+    for i in range(len(s)):
+        count[s[i]] += 1
+        maxf = max(maxf, count[s[i]])
+        if res - maxf < k:
+            res += 1
+        else:
+            count[s[i - res]] -= 1
+    return res
+
+Approach 2
+
+def characterReplacement(self, s, k):
+    maxf = i = 0
+    count = collections.Counter()
+    for j in range(len(s)):
+        count[s[j]] += 1
+        maxf = max(maxf, count[s[j]])
+        if j - i + 1 > maxf + k:
+            count[s[i]] -= 1
+            i += 1
+    return len(s) - i
+
+# Solution 3 - Easy || 100% || Fully Explained || Python, Python3 || Sliding Window
+
+# PROBLEM STATEMENT:
+# Given a string s and an integer k. Choose any character of the string and change it to any other uppercase English character. Perform this operation at most k times.
+# Return the length of the longest substring containing the same letter you can get after performing the above operations.
+
+# Example 1:
+# Input:
+# s = "ABAB", k = 2
+
+# Output:
+# 4
+# Explanation: Replace the two 'A's with two 'B's or vice versa.
+
+# Example 2:
+# Input:
+# s = "AABABBA", k = 1
+
+# Output:
+# 4
+
+# Explanation:
+# Replace the one 'A' in the middle with 'B' and form "AABBBBA".
+# The substring "BBBB" has the longest repeating letters, which is 4.
+
+# Time Complexity :  O(n)
+# Space Complexity : O(1)
+
+class Solution(object):
+    def characterReplacement(self, s, k):
+        maxlen, largestCount = 0, 0
+        arr = collections.Counter()
+        for idx in xrange(len(s)):
+            arr[s[idx]] += 1
+            largestCount = max(largestCount, arr[s[idx]])
+            if maxlen - largestCount >= k:
+                arr[s[idx - maxlen]] -= 1
+            else:
+                maxlen += 1
+        return maxlen
+
+# Solution 4 - Simple Python two-pointer solution
+
+Approach 1:
+For a window s[l:r+1], if r - l + 1 - max_freq of s[l:r+1] <= k, we can perform
+at most k operation and change it to a string with repeating characters.
+Keep a moving window expand while r - l + 1 - max_freq of s[l:r+1] <= k ,
+then shrink while r - l + 1 - max_freq of s[l:r+1] > k.
+
+def characterReplacement(self, s, k):        
+        longest_window = 0
+        window_counts = collections.defaultdict(int)
+        l = 0
+        for r in range(len(s)):
+            window_counts[s[r]] += 1
+            while r - l + 1 - max(window_counts.values()) > k:
+                window_counts[s[l]] -= 1 
+                l += 1
+            longest_window = max(longest_window, r - l + 1)
+        return longest_window
+
+Approach 2:
+Adding tricks:
+(1) change while to if
+(2) change max(window_counts.values()) to a variable freq_max and don't decrement freq_max
+
+def characterReplacement(self, s, k):        
+        longest_window = 0
+        window_counts = defaultdict(int)
+        freq_max = 0
+        l = 0
+        for r in range(len(s)):
+            window_counts[s[r]] += 1
+            freq_max = max(freq_max, window_counts[s[r]])
+            if r - l + 1 - freq_max > k:
+                window_counts[s[l]] -= 1 
+                l += 1
+            longest_window = max(longest_window, r - l + 1)
+        return longest_window

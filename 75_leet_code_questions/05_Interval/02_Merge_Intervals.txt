@@ -1,0 +1,116 @@
+# --INTERVAL--
+
+# Merge Intervals
+# Link : https://leetcode.com/problems/merge-intervals/solutions/1644409/c-python-simple-solutions-w-explanation-sort-merge-o-nlogn-count-sort-o-n-r/
+
+# Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.
+
+# Example 1:
+
+# Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+# Output: [[1,6],[8,10],[15,18]]
+# Explanation: Since intervals [1,3] and [2,6] overlap, merge them into [1,6].
+
+# Example 2:
+
+# Input: intervals = [[1,4],[4,5]]
+# Output: [[1,5]]
+# Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+
+# Constraints:
+
+# 1 <= intervals.length <= 104
+# intervals[i].length == 2
+# 0 <= starti <= endi <= 104
+
+# Solution 1
+
+# Just go through the intervals sorted by start coordinate and either combine the current interval with the previous one if they overlap, or add it to the output by itself if they don't.
+
+def merge(self, intervals):
+    out = []
+    for i in sorted(intervals, key=lambda i: i.start):
+        if out and i.start <= out[-1].end:
+            out[-1].end = max(out[-1].end, i.end)
+        else:
+            out += i,
+    return out
+
+# Simple Solutions w/ Explanation | Sort-Merge O(NlogN) + Count-Sort O(N + R)
+
+# We are given array of intervals and we need to merge all the overlapping intervals
+
+# ✔️ Solution - I (Sort & Merge)
+
+# Two intervals i1 and i2 overlap only if i1[1] >= i2[0] and i2[1] >= i1[0] or vice-versa. So, whenever we find two such intervals, we need to merge them as [min(i1[0], i2[0]), max(i1[1], i2[1])]. 
+# However, directly using this approach would require us compare each pair of intervals, merge them if they overlap and restart the same process & continue the same till we dont find any overlapping between any pairs. 
+# This would lead to more than O(N^2) time complexity.
+
+# A better approach would be to sort the given intervals first. This would allow us to iterate one by one and only compare between adjacent pair of intervals instead of every pair. We can maintain a 
+# sorted list and merge/insert new intervals one by one. Since, we have sorted the intervals, one of the condition of overlap is already satisfied - i2[1] >= i1[0] (since i2[0] >= i1[0] after sort & i2[1] >= i2[0]).
+
+# Thus, we only need to check if the new interval's start (i[0] in below code) is <= last interval of sorted list (ans.back()[1]) formed till now. If it is overlapping, then we merge the two intervals by updating the last 
+# interval of the sorted list. If the intervals dont overlap, we can just add the new interval to the end of sorted list.
+
+class Solution:
+    def merge(self, I):
+        I.sort()
+        ans = [I[0]]
+        for i in I:
+            if i[0] <= ans[-1][1]:
+                ans[-1][1] = max(ans[-1][1], i[1])
+            else:
+                ans.append(i)
+        return ans
+
+# Time Complexity : O(NlogN)
+# Space Complexity : O(sort), required for in-built sort algortihm. The extra space used for output is generally not included in space complexity.
+
+# ✔️ Solution - II (Inplace Merge)
+
+# You could further optimize on space if you are allowed to modify the input itself in which case you can directly merge in-place. We could keep track of length of sorted sub-list in I in an variable R (denoting right end of sorted list formed till now). 
+# The rest of logic would be same as above. We would just replace last interval of sorted list denoted by ans.back() in previous approach with I[R] since we are merge inplace.
+
+class Solution:
+    def merge(self, I):
+        I.sort()
+        R = 0
+        for i in I:
+            if i[0] <= I[R][1]:
+                I[R][1] = max(I[R][1], i[1])
+            else:
+                I[(R := R + 1)] = i
+        return I[:R+1]
+
+# Time Complexity : O(NlogN)
+# Space Complexity : O(sort)  
+
+✔️ Solution - III (Counting Sort & Merge)
+
+# We can sort the intervals using counting sort as well. This approach would be more efficient if the number of intervals are greater but the range is small.
+
+# We declare an array ends of length equal to greatest start of an interval. ends[i] will store the array of ends of interval starting at i. Once we fill ends using intervals from I, we can update intervals back into I in a sorted order. 
+# The rest of the code remains the same
+
+class Solution:
+    def merge(self, I):
+        def countingSort():
+            ends, j = defaultdict(list), 0
+            for i in I:
+                ends[i[0]].append(i[1])
+            for i in range(1 + max(I, key = lambda i : i[0])[0]):
+                for end in ends[i]:
+                    I[j] = [i, end]
+                    j += 1
+                    
+        countingSort()
+        R = 0
+        for i in I:
+            if i[0] <= I[R][1]:
+                I[R][1] = max(I[R][1], i[1])
+            else:
+                I[(R := R + 1)] = i
+        return I[:R+1]
+
+# Time Complexity : O(N + R), where R is the range of intervals determined by largest start value of an interval
+# Space Complexity : O(R), required for storing ends

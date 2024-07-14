@@ -1,0 +1,36 @@
+STRING FUNCTION REVERSE()
+
+Complete the solution so that it reverses the string passed into it.
+'world'  =>  'dlrow'
+'word'   =>  'drow'
+
+SELECT str, REVERSE(str) AS res 
+FROM solution
+
+
+STRING FUNCTION TRANSLATE()
+
+In DNA strings, symbols "A" and "T" are complements of each other, as "C" and "G". Your function receives one side of the DNA (string, except for Haskell); 
+you need to return the other complementary side. DNA strand is never empty or there is no DNA at all (again, except for Haskell).
+
+"ATTGC" --> "TAACG"
+"GTAT" --> "CATA"
+
+SELECT dna, TRANSLATE(dna, 'ATGC', 'TACG') AS res 
+FROM dnastrand
+
+STRING FUNCTION SUM()
+
+Complete the function to return his total number of goals in all three leagues.
+5, 10, 2  -->  17
+
+SELECT (la_liga_goals + copa_del_rey_goals + champions_league_Goals) as res
+  FROM goals;
+  
+
+STRING FUNCTION UPPER()
+
+Write a function which converts the input string to uppercase.
+
+select s, (upper(s)) as res
+from makeuppercase

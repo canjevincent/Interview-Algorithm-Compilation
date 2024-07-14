@@ -1,0 +1,65 @@
+GRAPH THEORY
+
+A. Coding Question 9: Implement a function to check if a directed graph is acyclic (does not contain any cycles).
+
+Assumptions: The graph will be represented as an adjacency list or matrix, and the number of nodes and edges in the graph will not exceed a certain limit.
+
+Sample Input: Graph:
+
+{
+  'A': ['B', 'C'],
+  'B': ['C'],
+  'C': ['D'],
+  'D': []
+}
+
+Expected Output:
+
+True
+
+Sample Input: Graph:
+
+{
+  'A': ['B'],
+  'B': ['C'],
+  'C': ['A']
+}
+
+Expected Output:
+
+False
+
+
+=======================================
+
+
+B. Coding Question 10: Implement a function to perform topological sorting on a directed acyclic graph.
+
+Assumptions: The graph will be represented as an adjacency list or matrix, and it will be ensured that the graph is acyclic.
+
+Sample Input: Graph:
+
+{
+  'A': ['B', 'C'],
+  'B': ['D'],
+  'C': ['D'],
+  'D': []
+}
+
+Expected Output:
+
+['A', 'C', 'B', 'D']
+
+Sample Input: Graph:
+
+{
+  'A': ['B'],
+  'B': ['C', 'D'],
+  'C': [],
+  'D': []
+}
+
+Expected Output:
+
+['A', 'B', 'D', 'C']
+

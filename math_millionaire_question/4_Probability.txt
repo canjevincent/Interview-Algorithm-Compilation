@@ -1,0 +1,35 @@
+PROBABILITY 
+
+A. Coding Question 7: Implement a function to calculate the probability of drawing specific cards from a deck of playing cards.
+
+Assumptions: The deck will be represented as a list of cards, and the probability calculations will assume that the deck is well-shuffled and without any known biases.
+
+Sample Input: Deck: ['A♥', '2♦', '3♣', 'K♠'] Cards: ['A♥', '3♣']
+
+Expected Output:
+
+0.5
+
+Sample Input: Deck: ['J♠', 'Q♠', 'K♠', 'A♠', 'J♦', 'Q♦', 'K♦', 'A♦'] Cards: ['J♠', 'A♦']
+
+Expected Output:
+
+0.25
+
+=======================================
+
+B. Coding Question 8: Implement a function to simulate the Monty Hall problem and calculate the probability of winning with different strategies.
+
+Assumptions: The simulation will assume that the host follows the standard Monty Hall problem rules, and the player's strategies will be specified in the input.
+
+Sample Input: Number of Simulations: 10000 Switch Strategy: True
+
+Expected Output:
+
+Approximate Probability of Winning by Switching Doors: 0.666
+
+Sample Input: Number of Simulations: 10000 Switch Strategy: False
+
+Expected Output:
+
+Approximate Probability of Winning without Switching Doors: 0.333

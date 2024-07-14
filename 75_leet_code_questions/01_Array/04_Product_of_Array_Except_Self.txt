@@ -1,0 +1,104 @@
+# --ARRAY--
+
+# Product of Array Except Self
+# Link : https://leetcode.com/problems/product-of-array-except-self/solutions/1597994/c-python-4-simple-solutions-w-explanation-prefix-suffix-product-o-1-space-approach/
+
+# Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i].
+# The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer.
+# You must write an algorithm that runs in O(n) time and without using the division operation.
+
+# Example 1:
+
+# Input: nums = [1,2,3,4]
+# Output: [24,12,8,6]
+# Example 2:
+
+# Input: nums = [-1,1,0,-3,3]
+# Output: [0,0,9,0,0]
+
+# Constraints:
+
+# 2 <= nums.length <= 10^5
+# -30 <= nums[i] <= 30
+# The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer.
+
+# We are given an array nums and need to return an array ans where ans[i] contains product of all elements in nums except nums[i].
+
+# ✔️ Solution - I (Calculate product & divide by self)
+
+# We can simply calculate product of the whole array and for each element in nums, divide the product by nums[i]. This effectively leaves us with product of whole array except self at each index. We need to take care of zeros that may occur in the array -
+
+# 1. If there are more than one 0s in nums, the result is an array consisting of all 0.
+# 2. If there is a single 0 in nums, then the result is an array consisting of all 0 except at the index where there was 0 in nums, which will contain product of rest of array.
+# 3. If there's no 0 in nums, then the result is an array ans where ans[i] = prod / nums[i] (prod = product of all elements in nums).
+
+class Solution:
+    def productExceptSelf(self, nums):
+        prod, zero_cnt = reduce(lambda a, b: a*(b if b else 1), nums, 1), nums.count(0)
+        if zero_cnt > 1: return [0]*len(nums)
+        for i, c in enumerate(nums):
+            if zero_cnt: nums[i] = 0 if c else prod
+            else: nums[i] = prod // c
+        return nums
+
+# Time Complexity : O(N)
+# Space Complexity : O(1)
+
+# ✔️ Solution - II (Prefix & Suffix Products)
+
+# We are required to solve this problem without using the division operator. We can do this by calculating two arrays pre and suf 
+# where pre[i] contains product of all nums[j] such that j <= i, and suf[i] contains product of all nums[j] such that j >= i.
+
+# Finally, the resulting array ans can be calculated as ans[i] = pre[i-1] * suf[i+1] which is product of all elements with index less than 
+# i multiplied by product of all elements with index greater than i. This is essentially equal to product of array except self at each index.
+
+class Solution:
+    def productExceptSelf(self, nums):
+        pre, suf, n = list(accumulate(nums, mul)), list(accumulate(nums[::-1], mul))[::-1], len(nums)
+        return [(pre[i-1] if i else 1) * (suf[i+1] if i+1 < n else 1) for i in range(n)]
+
+# Time Complexity : O(N), calculating pre and suf arrays takes O(N) time and then another O(N) to compute ans. Total complexity comes out to be O(3*N) = O(N).
+# Space Complexity : O(N), required to store pre and suf arrays
+
+# ✔️ Solution - III (Space-Optimized Prefix & Suffix Products)
+
+# We can calculate ans without maintaining two extra pre and suf arrays.
+
+# We can initialize the result array ans of length equal to nums filled with 1.
+# Then, for each i, we can calculate prefix product (without self), i.e, ans[i] = ans[i-1]*nums[i-1]. This is same as calculating pre in previous approach but this time we are storing it within our result array.
+# Then we iterate from the last index with a variable suffixProd=1 denoting suffix product. For each i, we multiply ans[i] with suffixProd. Each time we will also update suffixProd = suffixProd * nums[i].
+# The above again gives us product of array except self at each index. This is because, firstly we are storing prefix product (without self) in ans and then multiplying each ans[i] with suffix product which is the same that we did in the previous approach.
+
+class Solution:
+    def productExceptSelf(self, nums):
+        n, ans, suffix_prod = len(nums), [1]*len(nums), 1
+        for i in range(1,n):
+            ans[i] = ans[i-1] * nums[i-1]
+        for i in range(n-1,-1,-1):
+            ans[i] *= suffix_prod
+            suffix_prod *= nums[i]
+        return ans
+
+# Time Complexity : O(N), one iteration is required to calculate prefix product for each index and another iteration to calculate suffix product. Total time complexity comes out to be O(2*N) = O(N)
+# Space Complexity : O(1), ignoring the output, we are only using constant extra space.
+
+# ✔️ Solution - IV (Space-Optimized Prefix & Suffix Products in One-Pass)
+
+# The above process can be done in single pass as well. We were first calculating prefix product in one loop and then multiplying it with suffix product in another loop. These two process are independent of each other and can be done in the same loop. We just need to keep another prefix product variable similar to suffix_prod in previous approach.
+
+# We iterate from start and keep calculating prefix product & update corresponding ans[i] & at the same time we can calculate keep calculating suffix product from the end & update ans[n-1-i].
+
+class Solution:
+    def productExceptSelf(self, nums):
+        ans, suf, pre = [1]*len(nums), 1, 1
+        for i in range(len(nums)):
+            ans[i] *= pre               # prefix product from one end
+            pre *= nums[i]
+			ans[-1-i] *= suf            # suffix product from other end
+			suf *= nums[-1-i]
+        return ans
+
+# Note that the final result would be product of array except self because we only update & multiply pre with nums[i] after updating ans[i] and similarly for suf.
+
+# Time Complexity : O(N)
+# Space Complexity : O(1)

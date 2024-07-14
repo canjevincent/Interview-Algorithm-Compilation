@@ -1,0 +1,265 @@
+# --DYNAMIC PROGRAMMING--
+
+# Longest Increasing Subsequence
+# Link : https://leetcode.com/problems/longest-increasing-subsequence/solutions/1326308/c-python-dp-binary-search-bit-segment-tree-solutions-picture-explain-o-nlogn/
+
+# Given an integer array nums, return the length of the longest strictly increasing subsequence.
+
+ 
+
+# Example 1:
+
+# Input: nums = [10,9,2,5,3,7,101,18]
+# Output: 4
+# Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.
+# Example 2:
+
+# Input: nums = [0,1,0,3,2,3]
+# Output: 4
+# Example 3:
+
+# Input: nums = [7,7,7,7,7,7,7]
+# Output: 1
+ 
+
+# Constraints:
+
+# 1 <= nums.length <= 2500
+# -10^4 <= nums[i] <= 10^4
+
+✔️ Solution 1: Dynamic Programming
+
+# This is a classic Dynamic Programming problem.
+# Let dp[i] is the longest increase subsequence of nums[0..i] which has nums[i] as the end element of the subsequence.
+
+class Solution:  # 2516 ms, faster than 64.96%
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        n = len(nums)
+        dp = [1] * n
+        for i in range(n):
+            for j in range(i):
+                if nums[i] > nums[j] and dp[i] < dp[j] + 1:
+                    dp[i] = dp[j] + 1
+        return max(dp)
+
+# Complexity
+
+# Time: O(N^2), where N <= 2500 is the number of elements in array nums.
+# Space: O(N)
+
+✔️ Solution 2: Greedy with Binary Search
+
+# Let's construct the idea from following example.
+# Consider the example nums = [2, 6, 8, 3, 4, 5, 1], let's try to build the increasing subsequences starting with an empty one: sub1 = [].
+# 1. Let pick the first element, sub1 = [2].
+# 2. 6 is greater than previous number, sub1 = [2, 6]
+# 3. 8 is greater than previous number, sub1 = [2, 6, 8]
+# 4. 3 is less than previous number, we can't extend the subsequence sub1, but we must keep 3 because in the future there may have the longest subsequence start with [2, 3], sub1 = [2, 6, 8], sub2 = [2, 3].
+# 5. With 4, we can't extend sub1, but we can extend sub2, so sub1 = [2, 6, 8], sub2 = [2, 3, 4].
+# 6. With 5, we can't extend sub1, but we can extend sub2, so sub1 = [2, 6, 8], sub2 = [2, 3, 4, 5].
+# 7. With 1, we can't extend neighter sub1 nor sub2, but we need to keep 1, so sub1 = [2, 6, 8], sub2 = [2, 3, 4, 5], sub3 = [1].
+# 8. Finally, length of longest increase subsequence = len(sub2) = 4.
+
+# In the above steps, we need to keep different sub arrays (sub1, sub2..., subk) which causes poor performance. But we notice that we can just keep one sub array, when new number x is not greater than the last element of 
+# the subsequence sub, we do binary search to find the smallest element >= x in sub, and replace with number x.
+
+# Let's run that example nums = [2, 6, 8, 3, 4, 5, 1] again:
+
+# 1. Let pick the first element, sub = [2].
+# 2. 6 is greater than previous number, sub = [2, 6]
+# 3. 8 is greater than previous number, sub = [2, 6, 8]
+# 4. 3 is less than previous number, so we can't extend the subsequence sub. We need to find the smallest number >= 3 in sub, it's 6. Then we overwrite it, now sub = [2, 3, 8].
+# 5. 4 is less than previous number, so we can't extend the subsequence sub. We overwrite 8 by 4, so sub = [2, 3, 4].
+# 6. 5 is greater than previous number, sub = [2, 3, 4, 5].
+# 7. 1 is less than previous number, so we can't extend the subsequence sub. We overwrite 2 by 1, so sub = [1, 3, 4, 5].
+# 8. Finally, length of longest increase subsequence = len(sub) = 4.
+
+class Solution:  # 68 ms, faster than 93.92%
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        sub = []
+        for x in nums:
+            if len(sub) == 0 or sub[-1] < x:
+                sub.append(x)
+            else:
+                idx = bisect_left(sub, x)  # Find the index of the first element >= x
+                sub[idx] = x  # Replace that number with x
+        return len(sub)
+
+# Complexity
+
+# Time: O(N * logN), where N <= 2500 is the number of elements in array nums.
+# Space: O(N), we can achieve O(1) in space by overwriting values of sub into original nums array.
+
+# [BONUS CODE] Get Longest Increasing Subsequence Path
+
+class Solution:
+    def pathOfLIS(self, nums: List[int]):
+        sub = []
+        subIndex = []  # Store index instead of value for tracing path purpose
+        trace = [-1] * len(nums)  # trace[i] point to the index of previous number in LIS
+        for i, x in enumerate(nums):
+            if len(sub) == 0 or sub[-1] < x:
+                if subIndex:
+                    trace[i] = subIndex[-1]
+                sub.append(x)
+                subIndex.append(i)
+            else:
+                idx = bisect_left(sub, x)  # Find the index of the smallest number >= x, replace that number with x
+                if idx > 0:
+                    trace[i] = subIndex[idx - 1]
+                sub[idx] = x
+                subIndex[idx] = i
+
+        path = []
+        t = subIndex[-1]
+        while t >= 0:
+            path.append(nums[t])
+            t = trace[t]
+        return path[::-1]
+
+print(Solution().pathOfLIS([2, 6, 8, 3, 4, 5, 1]))  # [2, 3, 4, 5]
+
+# Complexity:
+
+# Time: O(N * logN)
+# Space: O(N)
+
+✔️ Solution 3: Binary Indexed Tree (Increase BASE of nums into one-base indexing)
+
+# Let f[x] is the length of longest increase subsequence , where all number in the subsequence <= x. This is the max element in indices [1..x] if we build the Binary Indexed Tree (BIT)
+# Since -10^4 <= nums[i] <= 10^4, we can convert nums into 1 <= nums[i] <= 2*10^4+1 by plus BASE=10001 to store into the BIT.
+
+# We build Max BIT, which has 2 operators:
+  get(idx): Return the maximum value of indices in range [1..idx].
+  update(idx, val): Update a value val into BIT at index idx.
+
+# Iterate numbers i in range [0..n-1]:
+  subLongest = bit.get(nums[i] - 1) // Get longest increasing subsequence so far, which idx < nums[i], or idx <= nums[i] - 1.
+  bit.update(nums[i], subLongest + 1) // Update latest longest to the BIT.
+
+# The answer is bit.get(20001) // Maximum of all elements in the BIT
+
+class MaxBIT:  # One-based indexing
+    def __init__(self, size):
+        self.bit = [0] * (size + 1)
+    def get(self, idx):
+        ans = 0
+        while idx > 0:
+            ans = max(ans, self.bit[idx])
+            idx -= idx & (-idx)
+        return ans
+    def update(self, idx, val):
+        while idx < len(self.bit):
+            self.bit[idx] = max(self.bit[idx], val)
+            idx += idx & (-idx)
+
+class Solution:  # 360 ms, faster than 69.28%
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        bit = MaxBIT(20001)
+        BASE = 10001
+        for x in nums:
+            subLongest = bit.get(BASE + x - 1)
+            bit.update(BASE + x, subLongest + 1)
+        return bit.get(20001)
+
+# Complexity
+
+# Time: O(N * logMAX), where MAX = 20000 is the difference between minimum and maximum elements in nums, N <= 2500 is the number of elements in array nums.
+# Space: O(MAX)
+
+✔️ Solution 4: Binary Indexed Tree (Compress nums into values in [1...N])
+
+# In solution 3, -10^4 <= nums[i] <= 10^4 is small enough, so we can store in our Binary Indexed Tree (BIT).
+# Can we store when -10^9 <= nums[i] <= 10^9 is very big? In that case, we can compress our nums array while keeping the relative comparation order between numbers.
+# How to compress?
+  In the nums array length N, where N <= 2500, there are maximum N different numbers.
+  We can get the unique values of numbers in nums, and sort those values in increasing order, let name it uniqueSorted.
+  Then we traverse i in range [0..n-1], we get the compressed value of nums[i] by looking the index in uniqueSorted.
+  As the result, elemenents in nums is compressed into values in range [1...N].
+
+class MaxBIT:  # One-based indexing
+    def __init__(self, size):
+        self.bit = [0] * (size + 1)
+    def get(self, idx):
+        ans = 0
+        while idx > 0:
+            ans = max(ans, self.bit[idx])
+            idx -= idx & (-idx)
+        return ans
+    def update(self, idx, val):
+        while idx < len(self.bit):
+            self.bit[idx] = max(self.bit[idx], val)
+            idx += idx & (-idx)
+
+class Solution:  # 188 ms, faster than 69.99%
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        def compress(arr):  # For example: [1, 9999, 20, 10, 20]
+            uniqueSorted = sorted(set(arr))
+            for i in range(len(arr)): 
+                arr[i] = bisect_left(uniqueSorted, arr[i]) + 1  # Result: [1, 4, 3, 2, 3]
+            return len(uniqueSorted)
+
+        nUnique = compress(nums)
+        bit = MaxBIT(nUnique)
+        for x in nums:
+            subLongest = bit.get(x - 1)
+            bit.update(x, subLongest + 1)
+        return bit.get(nUnique)
+
+# Complexity:
+
+# Time: O(N*logN), where N <= 2500 is the number of elements in array nums.
+# Space: O(N)
+
+✔️ Solution 5: Segment Tree
+
+# Same solution 4, but instead of using BIT, we can use Segment Tree to retrieve maximum of elements in range [left...right]
+
+class SegmentTree:
+    def __init__(self, n):
+        self.n = n
+        self.tree = [0] * 4 * self.n
+
+    # query (qleft, qright) to find maximum elements in range [qleft...qright]
+    def query(self, left, right, index, qleft, qright):
+        if qright < left or qleft > right:
+            return 0
+
+        if qleft <= left and right <= qright:
+            return self.tree[index]
+
+        mid = (left + right) // 2
+        resLeft = self.query(left, mid, 2 * index + 1, qleft, qright)
+        resRight = self.query(mid + 1, right, 2 * index + 2, qleft, qright)
+        return max(resLeft, resRight)
+
+    # update an element at `pos` to `val`
+    def update(self, left, right, index, pos, val):
+        if left == right:
+            self.tree[index] = val
+            return
+
+        mid = (left + right) // 2
+        if pos <= mid:
+            self.update(left, mid, 2 * index + 1, pos, val)
+        else:
+            self.update(mid + 1, right, 2 * index + 2, pos, val)
+        self.tree[index] = max(self.tree[2 * index + 1], self.tree[2 * index + 2])
+
+
+class Solution:
+    def lengthOfLIS(self, nums: List[int]) -> int:
+        def compress(arr):  # Example: [1, 9999, 20, 10, 20] -> Expected: [0, 3, 2, 1, 2]
+            sortedArr = sorted(arr)
+            ans = []
+            for x in arr:
+                ans.append(bisect_left(sortedArr, x))
+            return ans
+
+        nums = compress(nums)
+        n = len(nums)
+        segmentTree = SegmentTree(n)
+        for x in nums:
+            subLongest = segmentTree.query(0, n - 1, 0, 0, x - 1)
+            segmentTree.update(0, n - 1, 0, x, subLongest + 1)
+        return segmentTree.query(0, n - 1, 0, 0, n - 1)

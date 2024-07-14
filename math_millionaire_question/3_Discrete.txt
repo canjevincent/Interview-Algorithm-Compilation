@@ -1,0 +1,35 @@
+DISCRETE
+
+A. Coding Question 5: Implement a function to generate permutations of a given list of elements.
+
+Assumptions: The input list will contain distinct elements, and the number of elements in the list will not exceed a certain limit (e.g., 10).
+
+Sample Input: Elements: [1, 2, 3]
+
+Expected Output:
+
+[(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)]
+
+Sample Input: Elements: ['a', 'b']
+
+Expected Output:
+
+[('a', 'b'), ('b', 'a')]
+
+=======================================
+
+B. Coding Question 6: Implement a function to generate combinations of a given list of elements.
+
+Assumptions: The input list will contain distinct elements, and the number of elements in the list will not exceed a certain limit (e.g., 10).
+
+Sample Input: Elements: [1, 2, 3] r: 2
+
+Expected Output:
+
+[(1, 2), (1, 3), (2, 3)]
+
+Sample Input: Elements: ['a', 'b', 'c'] r: 2
+
+Expected Output:
+
+[('a', 'b'), ('a', 'c'), ('b', 'c')]

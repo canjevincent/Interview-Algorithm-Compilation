@@ -1,0 +1,97 @@
+# --STRING--
+
+# Valid Parentheses
+# Link : https://leetcode.com/problems/valid-palindrome/
+
+# A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
+
+# Given a string s, return true if it is a palindrome, or false otherwise.
+
+ 
+
+# Example 1:
+
+# Input: s = "A man, a plan, a canal: Panama"
+# Output: true
+# Explanation: "amanaplanacanalpanama" is a palindrome.
+# Example 2:
+
+# Input: s = "race a car"
+# Output: false
+# Explanation: "raceacar" is not a palindrome.
+# Example 3:
+
+# Input: s = " "
+# Output: true
+# Explanation: s is an empty string "" after removing non-alphanumeric characters.
+# Since an empty string reads the same forward and backward, it is a palindrome.
+
+# Constraints:
+
+# 1 <= s.length <= 2 * 10^5
+# s consists only of printable ASCII characters.
+
+# Solution 1 - Python in-place two-pointer solution.
+
+  def isPalindrome(self, s):
+    l, r = 0, len(s)-1
+    while l < r:
+        while l < r and not s[l].isalnum():
+            l += 1
+        while l <r and not s[r].isalnum():
+            r -= 1
+        if s[l].lower() != s[r].lower():
+            return False
+        l +=1; r -= 1
+    return True
+
+# Solution 2 - Solution in Python 3 (beats ~100%) (two lines) ( O(1) solution as well )
+
+# Approach 1: Two Lines
+
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+    	s = [i for i in s.lower() if i.isalnum()]
+    	return s == s[::-1]
+
+Approach 2: O(1) space (two-pointer)
+
+class Solution:
+    def isPalindrome(self, s: str) -> bool:
+    	i, j = 0, len(s) - 1
+    	while i < j:
+    		a, b = s[i].lower(), s[j].lower()
+    		if a.isalnum() and b.isalnum():
+    			if a != b: return False
+    			else:
+    				i, j = i + 1, j - 1
+    				continue
+    		i, j = i + (not a.isalnum()), j - (not b.isalnum())
+    	return True
+
+
+- Junaid Mansuri
+(LeetCode ID)@hotmail.com
+
+# Solution 3 - [Python] Two pointers, O(n) time & O(1) space, explained
+
+# One way to solve this problem is to create new string with only alphanumeric symbols and then check if it is palindrome. However we need O(n) space for this. There is more subtle approach, using Two Pointers technique.
+
+# Start with beg = 0 and end = len(s) - 1, the first and the last symbols of string s.
+# Now, we are going to move iterator beg only to the right and iterator end only to the left. Let us move them, until we reach alphanumeric symbols, using isalnum() function.
+# Compare these two symbols. We are happy, if they are equal, or it is the same letter in different capitalization, for example q and Q. How to check this case? Make both symbols capitalized, using .upper() and compare them.
+# In opposite case, immidietly return False.
+# If we reached the end of or program and we did not return False, then we need to return True.
+# Complexity: Time complexity is O(n), because we move beg only to the right and end only to the left, until they meet. Space complexity is O(1), we just use a couple of additional variables.
+
+class Solution:
+    def isPalindrome(self, s):
+        beg, end = 0, len(s) - 1
+        while beg <= end:
+            while not s[beg].isalnum() and beg < end: beg += 1
+            while not s[end].isalnum() and beg < end: end -= 1
+            if s[beg] == s[end] or s[beg].upper() == s[end].upper():
+                beg, end = beg + 1, end - 1
+            else:
+                return False
+        return True

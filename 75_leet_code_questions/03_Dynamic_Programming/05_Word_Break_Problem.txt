@@ -1,0 +1,138 @@
+# --DYNAMIC PROGRAMMING--
+
+# Word Break Problem
+# Link : https://leetcode.com/problems/word-break/solutions/1455100/python-3-solutions-top-down-dp-bottom-up-dp-then-optimised-with-trie-clean-concise/
+
+# Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.
+
+# Note that the same word in the dictionary may be reused multiple times in the segmentation.
+
+# Example 1:
+
+# Input: s = "leetcode", wordDict = ["leet","code"]
+# Output: true
+# Explanation: Return true because "leetcode" can be segmented as "leet code".
+
+# Example 2:
+
+# Input: s = "applepenapple", wordDict = ["apple","pen"]
+# Output: true
+# Explanation: Return true because "applepenapple" can be segmented as "apple pen apple".
+# Note that you are allowed to reuse a dictionary word.
+
+# Example 3:
+
+# Input: s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]
+# Output: false
+ 
+
+# Constraints:
+
+# 1 <= s.length <= 300
+# 1 <= wordDict.length <= 1000
+# 1 <= wordDict[i].length <= 20
+# s and wordDict[i] consist of only lowercase English letters.
+# All the strings of wordDict are unique.
+
+✔️ Solution 1: DFS with Memoization + HashSet
+
+# Let dp(i) return True if s[i..n-1] can be segmented into a space-separated sequence of one or more dictionary words.
+# Then dp(0) is our result.
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        n = len(s)
+        wordSet = set(wordDict)
+
+        @lru_cache(None)
+        def dp(start):
+            if start == n:  # Found a valid way to break words
+                return True
+
+            for end in range(start + 1, n + 1):  # O(N^2)
+                word = s[start:end]  # O(N)
+                if word in wordSet and dp(end):
+                    return True
+            return False
+
+        return dp(0)
+
+# Complexity
+
+# Time: O(N^3 + M), where N <= 300 is length of string s, where M <= 1000 is length of wordDict.
+# There are total N dp states, they are dp[0], dp[1],.., dp[n], each dp state needs a loop O(N^2) to calculate the result.
+# Plus the time to build wordSet from wordDict, which is O(M)
+# So total complexity is: O(N * N^2 + M) = O(N^3 + M).
+
+# Space: O(N + M)
+
+✔️ Solution 2: Bottom up DP (Updated: Add this solution)
+
+# Just convert from Top down DP to Bottom up DP.
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        wordSet = set(wordDict)
+        n = len(s)
+        
+        dp = [False] * (n+1)
+        dp[n] = True
+        for i in range(n-1, -1, -1):
+            for j in range(i+1, n+1):
+                if dp[j] and s[i:j] in wordSet:
+                    dp[i] = True
+                    break
+        
+        return dp[0]
+
+# Complexity
+
+# Time: O(N^3 + M), where N <= 300 is length of string s, where M <= 1000 is length of wordDict.
+# Space: O(N + M)
+
+✔️ Solution 3: DFS with Memoization + Optimized with Trie
+
+# We can optimize to this part s[i:j] in wordSet to O(1) by building the Trie structure to store all words in our trie.
+# Then when we iterate characters at index j, we update the cur trie node which represents the string s[i:j] in our trie words.
+
+class TrieNode:
+    def __init__(self):
+        self.isWord = False
+        self.child = defaultdict(TrieNode)
+    
+    def addWord(self, word):
+        cur = self
+        for c in word:
+            cur = cur.child[c]
+        cur.isWord = True
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        root = TrieNode()
+        for word in wordDict:
+            root.addWord(word)
+            
+        n = len(s)
+        dp = [False] * (n+1)
+        dp[n] = True
+        
+        for i in range(n-1, -1, -1):
+            cur = root
+            for j in range(i+1, n+1):
+                c = s[j-1]
+                if c not in cur.child: break  # s[i:j] not exist in our trie
+                cur = cur.child[c]
+                if cur.isWord and dp[j]:
+                    dp[i] = True
+                    break
+        
+        return dp[0]
+
+# Complexity
+
+# Time: O(N^2 + T), where N <= 300 is length of string s, T <= 20000 is total characters in wordDict for building Trie Structure.
+# Building DP costs O(N^2).
+# Plus the time to build the Trie, which is O(T).
+# So total complexity is: O(N * N + T) = O(N^2 + T).
+
+# Space: O(N + T)

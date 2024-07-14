@@ -1,0 +1,158 @@
+# --MATRIX--
+
+# 73. Spiral Matrix
+# Link : https://leetcode.com/problems/spiral-matrix/
+
+# Given an m x n matrix, return all elements of the matrix in spiral order.
+
+# Example 1:
+
+# Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
+# Output: [1,2,3,6,9,8,7,4,5]
+
+# Example 2:
+
+# Input: matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+# Output: [1,2,3,4,8,12,11,10,9,5,6,7]
+
+# Constraints:
+
+m == matrix.length
+n == matrix[i].length
+1 <= m, n <= 10
+-100 <= matrix[i][j] <= 100
+
+# Solution 1 - 1-liner in Python + Ruby
+
+# Take the first row plus the spiral order of the rotated remaining matrix. Inefficient for large matrices, but here I got it accepted in 40 ms, one of the fastest Python submissions.
+
+# Python:
+
+def spiralOrder(self, matrix):
+    return matrix and list(matrix.pop(0)) + self.spiralOrder(zip(*matrix)[::-1])
+
+# Python 3:
+
+def spiralOrder(self, matrix):
+    return matrix and [*matrix.pop(0)] + self.spiralOrder([*zip(*matrix)][::-1])
+
+# Ruby:
+
+def spiral_order(matrix)
+  (row = matrix.shift) ? row + spiral_order(matrix.transpose.reverse) : []
+end
+
+# or
+
+def spiral_order(matrix)
+  matrix[0] ? matrix.shift + spiral_order(matrix.transpose.reverse) : []
+end
+
+# Visualization
+# Here's how the matrix changes by always extracting the first row and rotating the remaining matrix counter-clockwise:
+
+    |1 2 3|      |6 9|      |8 7|      |4|  =>  |5|  =>  ||
+    |4 5 6|  =>  |5 8|  =>  |5 4|  =>  |5|
+    |7 8 9|      |4 7|
+
+# Now look at the first rows we extracted:
+
+    |1 2 3|      |6 9|      |8 7|      |4|      |5|
+
+# Those concatenated are the desired result.
+
+# Another visualization
+  spiral_order([[1, 2, 3],
+                [4, 5, 6],
+                [7, 8, 9]])
+
+= [1, 2, 3] + spiral_order([[6, 9],
+                            [5, 8],
+                            [4, 7]])
+
+= [1, 2, 3] + [6, 9] + spiral_order([[8, 7],
+                                     [5, 4]])
+
+= [1, 2, 3] + [6, 9] + [8, 7] + spiral_order([[4],
+                                              [5]])
+
+= [1, 2, 3] + [6, 9] + [8, 7] + [4] + spiral_order([[5]])
+
+= [1, 2, 3] + [6, 9] + [8, 7] + [4] + [5] + spiral_order([])
+
+= [1, 2, 3] + [6, 9] + [8, 7] + [4] + [5] + []
+
+= [1, 2, 3, 6, 9, 8, 7, 4, 5]
+
+# Solution 2 - python 3 solution for spiral matrix one of the most easiest you will never forget
+
+class Solution:
+    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+        res = []
+        if len(matrix) == 0:
+            return res
+        row_begin = 0
+        col_begin = 0
+        row_end = len(matrix)-1 
+        col_end = len(matrix[0])-1
+        while (row_begin <= row_end and col_begin <= col_end):
+            for i in range(col_begin,col_end+1):
+                res.append(matrix[row_begin][i])
+            row_begin += 1
+            for i in range(row_begin,row_end+1):
+                res.append(matrix[i][col_end])
+            col_end -= 1
+            if (row_begin <= row_end):
+                for i in range(col_end,col_begin-1,-1):
+                    res.append(matrix[row_end][i])
+                row_end -= 1
+            if (col_begin <= col_end):
+                for i in range(row_end,row_begin-1,-1):
+                    res.append(matrix[i][col_begin])
+                col_begin += 1
+        return res
+
+# Solution 3 - Python🔥Simple Solution🔥Easy to Understand
+
+# Approach:
+# We will use a while loop to traverse the matrix in a clockwise spiral order.
+# We will define four variables: left, right, top, bottom to represent the four boundaries of the current spiral.
+# We will use four for loops to traverse each edge of the current spiral in clockwise order and add the elements to the result list.
+# We will update the boundaries of the current spiral and continue the process until all elements have been traversed.
+# Intuition:
+# We start with the outermost layer of the matrix and traverse it in a clockwise spiral order, adding the elements to the result list.
+# Then we move on to the next inner layer of the matrix and repeat the process until we have traversed all layers.
+# To traverse each layer, we need to keep track of the four boundaries of the current spiral.
+# We start at the top-left corner of the current spiral and move right until we hit the top-right corner.
+# Then we move down to the bottom-right corner and move left until we hit the bottom-left corner.
+# Finally, we move up to the top-left corner of the next spiral and repeat the process until we have traversed all elements in the matrix.
+
+class Solution:
+    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+        if not matrix:
+            return []
+
+        rows, cols = len(matrix), len(matrix[0])
+        top, bottom, left, right = 0, rows-1, 0, cols-1
+        result = []
+        
+        while len(result) < rows * cols:
+            for i in range(left, right+1):
+                result.append(matrix[top][i])
+            top += 1
+            
+            for i in range(top, bottom+1):
+                result.append(matrix[i][right])
+            right -= 1
+            
+            if top <= bottom:
+                for i in range(right, left-1, -1):
+                    result.append(matrix[bottom][i])
+                bottom -= 1
+            
+            if left <= right:
+                for i in range(bottom, top-1, -1):
+                    result.append(matrix[i][left])
+                left += 1
+        
+        return result

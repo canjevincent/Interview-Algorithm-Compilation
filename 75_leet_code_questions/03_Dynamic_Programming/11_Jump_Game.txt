@@ -1,0 +1,138 @@
+# --DYNAMIC PROGRAMMING--
+
+# Jump Game
+# Link : https://leetcode.com/problems/jump-game/solutions/596454/python-simple-solution-with-thinking-process-runtime-o-n/
+# Link : https://leetcode.com/problems/jump-game/solutions/1443541/python-3-approaches-top-down-dp-bottom-up-dp-max-pos-so-far-clean-concise/
+
+# You are given an integer array nums. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position.
+
+# Return true if you can reach the last index, or false otherwise.
+
+ 
+
+# Example 1:
+
+Input: nums = [2,3,1,1,4]
+Output: true
+Explanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.
+
+# Example 2:
+
+Input: nums = [3,2,1,0,4]
+Output: false
+Explanation: You will always arrive at index 3 no matter what. Its maximum jump length is 0, which makes it impossible to reach the last index.
+
+# Constraints:
+
+1 <= nums.length <= 104
+0 <= nums[i] <= 105
+
+
+# [Python] Simple solution with thinking process -- Runtime O(n)
+
+
+# When I first see this problem, two things pop up in my mind:
+
+# Maybe I can do some sort of DFS, BFS (with backtracking?) but there will be a lot of redundancies
+# Then this begs for Dynamic Programming!
+# But my gut feeling was saying that this problem has to have a simpler approach.
+
+# So, here is my thinking process:
+
+# Base case: last index can trivially reach to last index.
+# Q1: How can I reach to the last index (I will call it last_position) from a preceding index?
+# If I have a preceding index idx in nums which has jump count jump which satisfies idx+jump >= last_position, I know that this idx is good enough to be treated as the last index because all I need to do now is to get to that idx. I am going to treat this new idx as a new last_position.
+# I ask Q1 again.
+# So now, here are two important things:
+
+# If we have indices which are like sinkholes, those with 0 as jump and every other preceding index can only jump to that sinkhole, our last_position will not be updated anymore because idx+jump >= last_position will not be satisfied at that sinkhole and every other preceding index cannot satisfy the idx+jump >= last_position condition since their jumps are not big enough.
+# E.g. nums=[3,2,1,0,4] # Here 0 is a sinkhole becuase all preceding indices can only jump to the sinkhole
+# If we have barriers, those indices with 0 as jump, but the preceding indices contain jumps which can go beyond those barriers, idx+jump >= last_position will be satisfied and last_position will be updated.
+# E.g. nums=[3,2,2,0,4] # Here 0 is just a barrier since the index before that 0 can jump *over* that barrier
+# Finally ask this question when we have finished looping
+
+# Is the last position index of 0? (i.e, have we reached to the beginning while doing the process of jumping and updating the last_position?)
+# If we have sinkholes in nums, our last_position will not be 0. Thus, False will be retured.
+# That's all!
+
+# This is what I have in mind when I was thinking of this approach :D
+
+ class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        last_position = len(nums)-1
+        
+        for i in range(len(nums)-2,-1,-1): # Iterate backwards from second to last item until the first item
+            if (i + nums[i]) >= last_position: # If this index has jump count which can reach to or beyond the last position
+                last_position = i # Since we just need to reach to this new index
+        return last_position == 0	
+
+# But in the interview, this approach may not be apparent or maybe the interviewer is looking for something.
+
+
+✔️ Solution 1: Top down DP (Sometime TLE)
+
+# Let dp(i) denote the possibility if we can reach the last index if we are at index i.
+# Then dp(0) is our result.
+
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        n = len(nums)
+        
+        @lru_cache(None)
+        def dp(i):
+            if i == n - 1:
+                return True
+            
+            for j in range(i+1, min(i+nums[i], n-1) + 1):
+                if dp(j):
+                    return True
+            return False
+        
+        return dp(0)
+
+# Complexity
+
+# Time: O(N^2), where N <= 10^4 is length of nums array.
+# Space: O(N)
+
+
+✔️ Solution 2: Top down DP
+
+# Let dp[i] denote the possibility if we can reach the last index if we are at index i.
+# Then dp[0] is our result.
+
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        n = len(nums)
+        dp = [False] * n
+        dp[n-1] = True
+        for i in range(n-2, -1, -1):
+            for j in range(i+1, min(n, i+nums[i]+1)):
+                if dp[j]:
+                    dp[i] = True
+                    break
+        return dp[0]
+
+# Complexity
+
+# Time: O(N^2), where N <= 10^4 is length of nums array.
+# Space: O(N)
+
+✔️ Solution 3: Max Pos So Far
+
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        n = len(nums)
+        maxPos = 0
+        i = 0
+        while i <= maxPos:
+            maxPos = max(maxPos, i + nums[i])
+            if maxPos >= n - 1: return True
+            i += 1
+        
+        return False
+
+# Complexity
+
+# Time: O(N), where N <= 10^4 is length of nums array.
+# Space: O(1)

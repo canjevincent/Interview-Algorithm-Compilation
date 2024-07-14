@@ -1,0 +1,32 @@
+LINEAR ALGEBRA
+
+A. Coding Question 1: Implement a function to calculate the determinant of a square matrix.
+
+Assumptions: The input matrix will be a square matrix represented as a nested list, and the size of the matrix will not exceed a certain limit (e.g., 10x10).
+
+Sample Input: Matrix:
+
+[[1, 2],
+ [3, 4]]
+
+Expected Output:
+
+-2
+
+=======================================
+
+B. Coding Question 2: Implement a function to find the eigenvalues and eigenvectors of a given matrix.
+
+Assumptions: The input matrix will be a square matrix represented as a nested list, and the size of the matrix will not exceed a certain limit (e.g., 10x10).
+
+Sample Input: Matrix:
+
+[[1, 2],
+ [3, 4]]
+
+Expected Output:
+
+Eigenvalues: [-0.37228132, 5.37228132]
+Eigenvectors:
+[[-0.82456484, -0.41597356],
+ [0.56576746, -0.90937671]]
